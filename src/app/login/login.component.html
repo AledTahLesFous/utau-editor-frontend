@@ -1,0 +1,9 @@
+<div style="max-width: 400px; margin: 50px auto; font-family: sans-serif;">
+  <h2>Login</h2>
+  <form (ngSubmit)="login()">
+    <input type="email" [(ngModel)]="email" name="email" placeholder="Email" required style="width: 100%; padding: 8px; margin-bottom: 10px;" />
+    <input type="password" [(ngModel)]="password" name="password" placeholder="Mot de passe" required style="width: 100%; padding: 8px; margin-bottom: 10px;" />
+    <button type="submit" style="padding: 10px 20px;">Se connecter</button>
+  </form>
+  <p *ngIf="errorMessage" style="color:red">{{ errorMessage }}</p>
+</div>
