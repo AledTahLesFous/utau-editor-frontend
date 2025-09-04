@@ -1,0 +1,31 @@
+<div class="project-container">
+  <h2>Créer un nouveau projet</h2>
+
+  <form (ngSubmit)="createProject()">
+    <input type="text" [(ngModel)]="projectName" name="projectName" placeholder="Nom du projet" required />
+
+    <!-- Bouton Advanced Settings -->
+    <button type="button" class="toggle-advanced" (click)="showAdvanced = !showAdvanced">
+      {{ showAdvanced ? 'Masquer les paramètres avancés' : 'Advanced Settings' }}
+    </button>
+
+    <!-- Paramètres avancés -->
+    <div class="advanced-settings" *ngIf="showAdvanced">
+      <input type="text" [(ngModel)]="projectDescription" name="projectDescription" placeholder="Description du projet" />
+      
+      <label for="tempo">Tempo: <span id="tempoValue">120</span></label>
+      <input type="range" [(ngModel)]="projectTempo" name="projectTempo" min="40" max="300" step="10" value="120" oninput="tempoValue.textContent = this.value">
+
+
+
+
+    </div>
+
+    <div class="buttons">
+      <button type="submit">Créer</button>
+      <button type="button" (click)="back()">Retour</button>
+    </div>
+  </form>
+
+  <p *ngIf="message">{{ message }}</p>
+</div>
