@@ -23,3 +23,8 @@
 - Grille de projet
 - Faire Refresh pour token
 - Faire OAuth
+- Faire sécu a la fin
+
+---
+
+1. Lié id au projet
