@@ -88,6 +88,6 @@ export class ProjectViewComponent implements OnInit {
   }
 
   back() {
-    this.router.navigate(['/projet']);
+    this.router.navigate(['/project']);
   }
 }

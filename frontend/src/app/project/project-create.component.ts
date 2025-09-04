@@ -57,15 +57,6 @@ export class ProjectCreateComponent {
       user_created: this.currentUserId,
     };
 
-      /* POUR UPDATE / ADVANCED
-    if (this.description) projectData.description = this.description;
-    if (this.tempo) projectData.tempo = this.tempo;
-    if (this.key_signature) projectData.key_signature = this.key_signature;
-    if (this.cover_image) projectData.cover_image = this.cover_image;
-    if (this.primary_voicebank) projectData.primary_voicebank = this.primary_voicebank;
-    if (this.tags) projectData.tags = this.tags;
-    */
-
 
 
     this.http.post('http://127.0.0.1:8055/items/projects', projectData, {

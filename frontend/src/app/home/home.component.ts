@@ -18,10 +18,10 @@ export class HomeComponent {
   }
 
   goToCreateProjet() {
-    this.router.navigate(['/projet']); // page de création
+    this.router.navigate(['/project']); // page de création
   }
 
   goToViewProjects() {
-    this.router.navigate(['/projets']); // page de visualisation de tous les projets
+    this.router.navigate(['/projects']); // page de visualisation de tous les projets
   }
 }

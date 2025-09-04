@@ -37,7 +37,7 @@ export class ProjectListComponent implements OnInit {
   }
 
   viewProject(projectName: string) {
-    this.router.navigate(['/projet', projectName]);
+    this.router.navigate(['/project', projectName]);
   }
 
   deleteProject(projectId: string) {
