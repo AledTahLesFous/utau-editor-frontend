@@ -21,3 +21,5 @@
 - Faire backend pixel avec voicebank demo Kasane teto 
 - Filtres de notes/voicebank lors création + filtres notes lors conception
 - Grille de projet
+- Faire Refresh pour token
+- Faire OAuth
