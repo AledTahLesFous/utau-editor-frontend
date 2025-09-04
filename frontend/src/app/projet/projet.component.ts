@@ -21,21 +21,47 @@ import { CommonModule } from '@angular/common';
 export class ProjetComponent {
   projectName = '';
   message = '';
+  currentUserId: string | null = null; // pour stocker l'id de l'utilisateur connecté
 
   constructor(private http: HttpClient) {}
 
-  createProject() {
+  ngOnInit() {
     const token = localStorage.getItem('token');
     if (!token) return;
 
+    // Récupérer l'utilisateur connecté
+    this.http.get('http://127.0.0.1:8055/users/me', {
+      headers: { Authorization: `Bearer ${token}` }
+    }).subscribe({
+      next: (user: any) => {
+        this.currentUserId = user.data.id; // stocke l'id pour créer le projet
+      },
+      error: (err) => {
+        console.error('Erreur récupération utilisateur:', err);
+      }
+    });
+  }
+
+  createProject() {
+    const token = localStorage.getItem('token');
+    if (!token || !this.currentUserId) {
+      this.message = 'Impossible de créer le projet : utilisateur non identifié.';
+      return;
+    }
+
     this.http.post('http://127.0.0.1:8055/items/projects', 
-      { title: this.projectName,
+      { 
+        title: this.projectName,
+        user_created: this.currentUserId,
         status: "draft"
-       },
+      },
       { headers: { Authorization: `Bearer ${token}` } }
     ).subscribe({
       next: () => this.message = 'Projet créé avec succès !',
-      error: () => this.message = 'Erreur lors de la création du projet'
+      error: (err) => {
+        console.error(err);
+        this.message = 'Erreur lors de la création du projet';
+      }
     });
   }
 }

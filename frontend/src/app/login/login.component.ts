@@ -35,8 +35,7 @@ login() {
       //console.log('Token:', res.data.access_token);
       localStorage.setItem('token', res.data.access_token);
 
-      // Stocker le nom/email pour l’affichage
-      localStorage.setItem('userName', this.email); // ou res.data.user.first_name si dispo
+
       // Rediriger vers home
       this.router.navigate(['/home']);
     },
