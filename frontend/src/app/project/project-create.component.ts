@@ -8,16 +8,24 @@ import { FormsModule } from '@angular/forms';
   selector: 'app-project',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './project.component.html',
+  templateUrl: './project-create.component.html',
   styleUrls: ['./project.component.css']
 })
-export class ProjectComponent {
-  projectName = '';
-  projectDescription = '';
-  projectTempo = '';
-  message = '';
+export class ProjectCreateComponent {
+  name = '';
+  description = '';
+  tempo = '';
+  
+  key_signature = '';
+  cover_image = '';
+  status = '';
+  primary_voicebank = '';
+  tags = '';
+
   currentUserId: string | null = null;
   showAdvanced = false;
+
+  message = '';
 
   constructor(private http: HttpClient, private router: Router) {}
 
@@ -45,13 +53,18 @@ export class ProjectComponent {
     }
 
     const projectData: any = {
-      title: this.projectName,
+      title: this.name,
       user_created: this.currentUserId,
-      status: 'draft'
     };
 
-    if (this.projectDescription) projectData.description = this.projectDescription;
-    if (this.projectTempo) projectData.tempo = this.projectTempo;
+      /* POUR UPDATE / ADVANCED
+    if (this.description) projectData.description = this.description;
+    if (this.tempo) projectData.tempo = this.tempo;
+    if (this.key_signature) projectData.key_signature = this.key_signature;
+    if (this.cover_image) projectData.cover_image = this.cover_image;
+    if (this.primary_voicebank) projectData.primary_voicebank = this.primary_voicebank;
+    if (this.tags) projectData.tags = this.tags;
+    */
 
 
 
@@ -64,6 +77,10 @@ export class ProjectComponent {
         this.message = 'Erreur lors de la création du projet';
       }
     });
+
+
+    this.router.navigate(['/project', this.name]);
+
   }
 
   back() {

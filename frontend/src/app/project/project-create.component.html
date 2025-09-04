@@ -2,7 +2,7 @@
   <h2>Créer un nouveau projet</h2>
 
   <form (ngSubmit)="createProject()">
-    <input type="text" [(ngModel)]="projectName" name="projectName" placeholder="Nom du projet" required />
+    <input type="text" [(ngModel)]="name" name="name" placeholder="Nom du projet" required />
 
     <!-- Bouton Advanced Settings -->
     <button type="button" class="toggle-advanced" (click)="showAdvanced = !showAdvanced">
@@ -11,14 +11,12 @@
 
     <!-- Paramètres avancés -->
     <div class="advanced-settings" *ngIf="showAdvanced">
-      <input type="text" [(ngModel)]="projectDescription" name="projectDescription" placeholder="Description du projet" />
-      
-      <label for="tempo">Tempo: <span id="tempoValue">120</span></label>
-      <input type="range" [(ngModel)]="projectTempo" name="projectTempo" min="40" max="300" step="10" value="120" oninput="tempoValue.textContent = this.value">
+      <input type="text" [(ngModel)]="description" name="description" placeholder="Description du projet" />
 
+      <label for="tempo">Tempo: <span id="tempo">{{ tempo || 120 }}</span></label>
+      <input type="range" [(ngModel)]="tempo" name="tempo" min="40" max="300" step="10" value="120" (input)="tempo = $any($event.target).value">
 
-
-
+      <input type="text" [(ngModel)]="key_signature" name="key_signature" placeholder="Key signature" />
     </div>
 
     <div class="buttons">

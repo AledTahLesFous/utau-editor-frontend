@@ -1,0 +1,13 @@
+<div class="project-container">
+  <h2>Projet: {{ name }}</h2>
+
+  <div *ngIf="message">{{ message }}</div>
+
+  <div *ngIf="!message">
+    <p><strong>Description:</strong> {{ description }}</p>
+    <p><strong>Tempo:</strong> {{ tempo }}</p>
+    <p><strong>Key signature:</strong> {{ key_signature }}</p>
+  </div>
+
+  <button (click)="back()">Retour</button>
+</div>

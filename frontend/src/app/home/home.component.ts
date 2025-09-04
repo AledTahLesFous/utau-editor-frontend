@@ -25,6 +25,6 @@ export class HomeComponent {
   }
 
   goToProjet() {
-    this.router.navigate(['/projet']);
+    this.router.navigate(['/project']);
   }
 }
