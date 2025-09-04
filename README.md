@@ -28,7 +28,10 @@
     1. Retrive Projects -> Users
     2. ...
 - Clean le code en anglais
-- Setup les AUTORISATIONS mais faire gaffe a sécu
+- Setup les AUTORISATIONS mais faire gaffe a sécu$
+- Faire de l'UX
+- Séparer html css et ts
+- Unique project name per user
 
 - TAGS ????
 ---
