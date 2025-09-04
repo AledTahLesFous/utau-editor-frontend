@@ -1,0 +1,14 @@
+<div class="project-list-container">
+  <h2>Mes projets</h2>
+  <div *ngIf="message">{{ message }}</div>
+
+  <ul *ngIf="projects.length > 0">
+    <li *ngFor="let project of projects">
+      <strong>{{ project.title }}</strong> - Tempo: {{ project.tempo }}
+      <button (click)="viewProject(project.title)">Voir / Modifier</button>
+      <button (click)="deleteProject(project.id)">Supprimer</button>
+    </li>
+  </ul>
+
+  <p *ngIf="projects.length === 0">Aucun projet trouvé.</p>
+</div>

@@ -12,4 +12,12 @@ export class AuthService {
   login(email: string, password: string): Observable<any> {
     return this.http.post<any>(this.authUrl, { email, password });
   }
+
+
+  getMe(token: string) {
+  return this.http.get('http://127.0.0.1:8055/users/me', {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+}
+
 }

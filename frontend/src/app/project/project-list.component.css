@@ -1,0 +1,35 @@
+.project-list-container {
+  text-align: center;
+  margin-top: 50px;
+}
+
+.project-list-container ul {
+  list-style: none;
+  padding: 0;
+}
+
+.project-list-container li {
+  margin: 10px 0;
+}
+
+.project-list-container button {
+  margin-left: 10px;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.project-list-container button:hover {
+  opacity: 0.8;
+}
+
+.project-list-container button:first-of-type {
+  background-color: #2196F3;
+  color: white;
+}
+
+.project-list-container button:last-of-type {
+  background-color: #f44336;
+  color: white;
+}

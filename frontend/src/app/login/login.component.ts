@@ -9,17 +9,8 @@ import { Router } from '@angular/router';
   selector: 'app-login',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  template: `
-    <div>
-      <h2>Login</h2>
-      <form (ngSubmit)="login()">
-        <input type="email" [(ngModel)]="email" name="email" placeholder="Email" required />
-        <input type="password" [(ngModel)]="password" name="password" placeholder="Mot de passe" required />
-        <button type="submit">Se connecter</button>
-      </form>
-      <p *ngIf="errorMessage" style="color:red">{{ errorMessage }}</p>
-    </div>
-  `
+  templateUrl: './login.component.html',
+  styleUrls: ['./login.component.css']
 })
 export class LoginComponent {
   email = '';
@@ -32,12 +23,23 @@ export class LoginComponent {
 login() {
   this.authService.login(this.email, this.password).subscribe({
     next: (res) => {
-      //console.log('Token:', res.data.access_token);
-      localStorage.setItem('token', res.data.access_token);
+      const token = res.data.access_token;
+      localStorage.setItem('token', token);
 
+      // Récupérer l'utilisateur connecté
+      this.authService.getMe(token).subscribe({
+        next: (userRes: any) => {
+          localStorage.setItem('userId', userRes.data.id);
+          localStorage.setItem('userName', userRes.data.first_name || 'Utilisateur');
 
-      // Rediriger vers home
-      this.router.navigate(['/home']);
+          // Rediriger vers home
+          this.router.navigate(['/home']);
+        },
+        error: (err) => {
+          console.error('Erreur récupération utilisateur:', err);
+          this.errorMessage = 'Login échoué';
+        }
+      });
     },
     error: (err) => {
       console.error(err);
@@ -45,6 +47,7 @@ login() {
     }
   });
 }
+
 
 ngOnInit() {
     const token = localStorage.getItem('token');

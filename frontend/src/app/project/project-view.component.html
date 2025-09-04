@@ -4,9 +4,30 @@
   <div *ngIf="message">{{ message }}</div>
 
   <div *ngIf="!message">
-    <p><strong>Description:</strong> {{ description }}</p>
-    <p><strong>Tempo:</strong> {{ tempo }}</p>
-    <p><strong>Key signature:</strong> {{ key_signature }}</p>
+    <!-- Affichage ou édition selon editMode -->
+    <div *ngIf="!editMode">
+      <p><strong>Description:</strong> {{ description }}</p>
+      <p><strong>Tempo:</strong> {{ tempo }}</p>
+      <p><strong>Key signature:</strong> {{ key_signature }}</p>
+
+      <button (click)="editMode = true">Modifier</button>
+    </div>
+
+    <div *ngIf="editMode">
+      <label>Description:</label>
+      <input type="text" [(ngModel)]="description" />
+
+      <label>Tempo: {{ tempo }}</label>
+      <input type="range" [(ngModel)]="tempo" min="40" max="300" step="10" />
+
+      <label>Key signature:</label>
+      <input type="text" [(ngModel)]="key_signature" />
+
+      <div class="buttons">
+        <button (click)="updateProject()">Enregistrer</button>
+        <button (click)="cancelEdit()">Annuler</button>
+      </div>
+    </div>
   </div>
 
   <button (click)="back()">Retour</button>

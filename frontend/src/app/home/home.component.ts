@@ -1,17 +1,10 @@
-// home.component.ts
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-home',
-  template: `
-    <div style="text-align:center; margin-top:50px;">
-      <h2>Bienvenue, {{ userName }} !</h2>
-      <p>Vous êtes connecté.</p>
-      <button (click)="goToProjet()">Nouveau projet</button>
-      <button (click)="logout()">Se déconnecter</button>
-    </div>
-  `
+  templateUrl: './home.component.html',
+  styleUrls: ['./home.component.css']
 })
 export class HomeComponent {
   userName = localStorage.getItem('userName') || 'Utilisateur';
@@ -24,7 +17,11 @@ export class HomeComponent {
     this.router.navigate(['/login']);
   }
 
-  goToProjet() {
-    this.router.navigate(['/project']);
+  goToCreateProjet() {
+    this.router.navigate(['/projet']); // page de création
+  }
+
+  goToViewProjects() {
+    this.router.navigate(['/projets']); // page de visualisation de tous les projets
   }
 }
