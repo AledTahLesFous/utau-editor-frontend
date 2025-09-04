@@ -24,7 +24,14 @@
 - Faire Refresh pour token
 - Faire OAuth
 - Faire sécu a la fin
+- Faire scripts d'intégration : 
+    1. Retrive Projects -> Users
+    2. ...
+- Clean le code en anglais
+- Setup les AUTORISATIONS mais faire gaffe a sécu
 
+- TAGS ????
 ---
 
 1. Lié id au projet
+2. Tempo
