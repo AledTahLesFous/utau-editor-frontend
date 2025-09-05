@@ -1,30 +1,46 @@
-// home.component.ts
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
+import { CommonModule } from '@angular/common'; // <-- important pour *ngIf
+import { AppHeaderComponent } from '../shared/app-header.component'; // <-- important pour *ngIf
 
 @Component({
   selector: 'app-home',
-  template: `
-    <div style="text-align:center; margin-top:50px;">
-      <h2>Bienvenue, {{ userName }} !</h2>
-      <p>Vous êtes connecté.</p>
-      <button (click)="goToProjet()">Nouveau projet</button>
-      <button (click)="logout()">Se déconnecter</button>
-    </div>
-  `
+  standalone: true, // si tu veux que ce component soit standalone
+  imports: [CommonModule, AppHeaderComponent], // <-- ngIf et autres directives Angular
+  templateUrl: './home.component.html',
 })
 export class HomeComponent {
-  userName = localStorage.getItem('userName') || 'Utilisateur';
+  isLoggedIn = !!localStorage.getItem('token');
 
   constructor(private router: Router) {}
 
   logout() {
     localStorage.removeItem('token');
-    localStorage.removeItem('userName');
-    this.router.navigate(['/login']);
+    localStorage.removeItem('userID');
+    this.isLoggedIn = false;
+    this.router.navigate(['/auth']);
   }
 
-  goToProjet() {
-    this.router.navigate(['/projet']);
+goToCreateProjet() {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    // pas connecté → redirige vers /auth
+    this.router.navigate(['/auth']);
+    return;
+  }
+  // connecté → va sur la page de création
+  this.router.navigate(['/project']);
+}
+
+  goToViewProjects() {
+    this.router.navigate(['/projects']);
+  }
+
+  goToLogin() {
+    this.router.navigate(['/auth']);
+  }
+
+  goToProfile() {
+    this.router.navigate(['/profile']);
   }
 }

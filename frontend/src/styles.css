@@ -1,1 +1,75 @@
-/* You can add global styles to this file, and also import other style files */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Carte Flip */
+.perspective {
+  perspective: 1500px;
+}
+
+.card {
+  transform-style: preserve-3d;
+  transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+}
+
+.card.flipped {
+  transform: rotateY(180deg);
+}
+
+.card-face {
+  width: 100%;
+  backface-visibility: hidden;
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 2rem;
+  padding: 2.5rem;
+}
+
+/* Arrière de la carte */
+.card-back {
+  transform: rotateY(180deg);
+}
+
+/* Inputs stylés */
+.input-field {
+  @apply w-full px-4 py-3 text-sm rounded-xl bg-white/70 dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-emerald-400 placeholder-gray-400;
+  padding-left: 2.5rem;
+}
+
+/* Boutons stylés */
+.btn-primary {
+  @apply px-6 py-3 rounded-xl text-white font-semibold shadow-lg hover:scale-105 transition-all duration-300;
+}
+
+@keyframes fade-in-out {
+  0% { opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.animate-fade-in-out {
+  animation: fade-in-out 4s ease forwards;
+}
+
+@keyframes slide-in {
+  0% { transform: translateX(100%); opacity: 0; }
+  100% { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slide-out {
+  0% { transform: translateX(0); opacity: 1; }
+  100% { transform: translateX(100%); opacity: 0; }
+}
+
+.animate-slide-in {
+  animation: slide-in 0.5s ease forwards;
+}
+
+.animate-slide-out {
+  animation: slide-out 0.5s ease forwards;
+}
