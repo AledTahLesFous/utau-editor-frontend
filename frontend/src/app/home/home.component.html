@@ -1,34 +1,61 @@
-<div class="text-center mt-12">
-  <h2 class="text-2xl font-semibold">Bienvenue, {{ userName }} !</h2>
-  <p class="mt-2 text-gray-700">Vous êtes connecté.</p>
+<div class="relative w-full min-h-screen px-6 py-12 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800 text-center overflow-hidden">
 
-  <div class="mt-6 flex justify-center gap-3 flex-wrap">
+  <!-- Login en haut à droite -->
+  <button
+    (click)="goToLogin()"
+    class="absolute top-6 right-6 px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full shadow hover:scale-105 transition-all duration-300 flex items-center gap-2 z-20"
+  >
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+      viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round"
+        d="M15 12H3m0 0l4-4m-4 4l4 4m8-4h6" />
+    </svg>
+    Login
+  </button>
+
+  <!-- Bouton "+" animé -->
+  <div class="absolute top-6 left-1/2 transform -translate-x-1/2 z-20">
     <button
       (click)="goToCreateProjet()"
-      class="px-5 py-2 bg-green-500 text-white rounded hover:bg-green-600 text-sm"
+      class="w-16 h-16 rounded-full bg-gradient-to-r from-emerald-500 to-green-500 text-white text-3xl font-bold shadow-lg flex items-center justify-center animate-pulse-slow hover:scale-110 transition-transform duration-300"
+      title="Nouveau projet"
     >
-      Nouveau projet
+      +
     </button>
+  </div>
 
+  <!-- Browse à gauche du "+" -->
+  <div class="absolute top-8 left-[calc(50%-120px)] transform -translate-x-full z-20">
     <button
       (click)="goToViewProjects()"
-      class="px-5 py-2 bg-green-500 text-white rounded hover:bg-green-600 text-sm"
+      class="px-4 py-2 rounded-xl bg-gradient-to-r from-teal-500 to-lime-500 text-white font-semibold shadow hover:scale-105 transition-all duration-300 text-sm flex items-center gap-2"
     >
-      Voir mes projets
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+        viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="M15 10l4.553 2.276A1 1 0 0120 13.118V19a1 1 0 01-1 1h-5m-4-4H5a1 1 0 01-1-1v-4.882a1 1 0 01.447-.842L9 10m6 0V5a1 1 0 00-1-1h-4a1 1 0 00-1 1v5m6 0H9" />
+      </svg>
+      Browse
     </button>
+  </div>
 
-    <button
-      (click)="logout()"
-      class="px-5 py-2 bg-red-500 text-white rounded hover:bg-red-600 text-sm"
-    >
-      Se déconnecter POUR DEBUG
-    </button>
+  <!-- Contenu principal -->
+  <div class="mt-36 text-center px-4">
+    <h2 class="text-5xl font-extrabold text-gray-900 dark:text-white">
+      Bienvenue, {{ userName }} !
+    </h2>
+    <p class="mt-4 text-xl text-gray-700 dark:text-gray-300">
+      Vous êtes connecté.
+    </p>
 
-    <button
-      (click)="goToLogin()"
-      class="px-5 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
-    >
-      Login
-    </button>
+    <!-- Logout (debug) -->
+    <div class="mt-12">
+      <button
+        (click)="logout()"
+        class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-red-500 to-pink-500 text-white font-semibold shadow hover:scale-105 transition-all duration-300"
+      >
+        Se déconnecter (debug)
+      </button>
+    </div>
   </div>
 </div>
