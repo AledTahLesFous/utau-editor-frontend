@@ -4,20 +4,24 @@ import { Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  // URL exacte pour login admin Directus
-  private authUrl = 'http://127.0.0.1:8055/auth/login';
+  private directusUrl = 'http://127.0.0.1:8055'; // Base URL Directus
 
   constructor(private http: HttpClient) {}
 
+  // Login utilisateur
   login(email: string, password: string): Observable<any> {
-    return this.http.post<any>(this.authUrl, { email, password });
+    return this.http.post<any>(`${this.directusUrl}/auth/login`, { email, password });
   }
 
+  // Créer un nouvel utilisateur
+  registerUser(userData: { first_name: string; email: string; password: string }): Observable<any> {
+    return this.http.post(`${this.directusUrl}/users/register`, userData);
+  }
 
-  getMe(token: string) {
-  return this.http.get('http://127.0.0.1:8055/users/me', {
-    headers: { Authorization: `Bearer ${token}` }
-  });
-}
-
+  // Récupérer les infos de l'utilisateur connecté
+  getMe(token: string): Observable<any> {
+    return this.http.get(`${this.directusUrl}/users/me`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+  }
 }
