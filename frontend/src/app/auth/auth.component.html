@@ -1,0 +1,67 @@
+<div class="w-full min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800 px-6 text-center overflow-hidden">
+
+  <!-- Carte flip wrapper -->
+  <div class="relative w-full max-w-md h-[500px] perspective flex items-center justify-center">
+
+    <!-- Carte flip -->
+    <div [class.flipped]="isFlipped" class="card w-full h-full transition-transform duration-700 relative">
+
+      <!-- Face avant: Login -->
+      <div class="card-face bg-white/20 backdrop-blur-2xl border border-white/30 shadow-2xl rounded-3xl p-10 flex flex-col items-center text-center h-full justify-center">
+        <h2 class="text-4xl font-extrabold text-gray-900 dark:text-white mb-8 tracking-wide">Connexion</h2>
+
+        <form (ngSubmit)="login()" class="w-full flex flex-col gap-5">
+          <div class="relative">
+            <input type="email" [(ngModel)]="email" name="email" placeholder="Email" required class="input-field"/>
+            <span class="absolute left-3 top-3 text-gray-400">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16 12H8m0 0l4-4m-4 4l4 4"/>
+              </svg>
+            </span>
+          </div>
+
+          <div class="relative">
+            <input type="password" [(ngModel)]="password" name="password" placeholder="Mot de passe" required class="input-field"/>
+            <span class="absolute left-3 top-3 text-gray-400">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 11c0-.55.45-1 1-1h2c.55 0 1 .45 1 1v4c0 .55-.45 1-1 1h-2c-.55 0-1-.45-1-1v-4z"/>
+              </svg>
+            </span>
+          </div>
+
+          <button type="submit" class="btn-primary bg-gradient-to-r from-emerald-500 to-green-500 flex items-center justify-center gap-2">
+            Se connecter
+          </button>
+        </form>
+
+        <p *ngIf="errorMessage" class="text-red-500 mt-4 text-sm">{{ errorMessage }}</p>
+        <p class="mt-6 text-gray-700 dark:text-gray-300 text-sm">
+          Pas encore inscrit ?
+          <a (click)="flipCard()" class="text-blue-500 font-semibold hover:underline cursor-pointer">Créer un compte</a>
+        </p>
+      </div>
+
+      <!-- Face arrière: Register -->
+      <div class="card-face card-back bg-white/20 backdrop-blur-2xl border border-white/30 shadow-2xl rounded-3xl p-10 flex flex-col items-center text-center h-full justify-center">
+        <h2 class="text-4xl font-extrabold text-gray-900 dark:text-white mb-8 tracking-wide">Créer un compte</h2>
+
+        <form (ngSubmit)="register()" class="w-full flex flex-col gap-5">
+          <input type="text" [(ngModel)]="first_name" name="first_name" placeholder="Nom complet" required class="input-field"/>
+          <input type="email" [(ngModel)]="email" name="email" placeholder="Email" required class="input-field"/>
+          <input type="password" [(ngModel)]="password" name="password" placeholder="Mot de passe" required class="input-field"/>
+          <input type="password" [(ngModel)]="confirmPassword" name="confirmPassword" placeholder="Confirmer le mot de passe" required class="input-field"/>
+          <button type="submit" class="btn-primary bg-gradient-to-r from-blue-500 to-indigo-500 flex items-center justify-center gap-2">
+            S'inscrire
+          </button>
+        </form>
+
+        <p *ngIf="errorMessage" class="text-red-500 mt-4 text-sm">{{ errorMessage }}</p>
+        <p class="mt-6 text-gray-700 dark:text-gray-300 text-sm">
+          Déjà inscrit ?
+          <a (click)="flipCard()" class="text-green-500 font-semibold hover:underline cursor-pointer">Se connecter</a>
+        </p>
+      </div>
+
+    </div>
+  </div>
+</div>
