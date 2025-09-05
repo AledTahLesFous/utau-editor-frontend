@@ -10,8 +10,9 @@ import { Router } from '@angular/router';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css']
 })
+
+
 export class LoginComponent {
   email = '';
   password = '';
@@ -30,10 +31,9 @@ login() {
       this.authService.getMe(token).subscribe({
         next: (userRes: any) => {
           localStorage.setItem('userId', userRes.data.id);
-          localStorage.setItem('userName', userRes.data.first_name || 'Utilisateur');
 
           // Rediriger vers home
-          this.router.navigate(['/home']);
+          this.router.navigate(['']);
         },
         error: (err) => {
           console.error('Erreur récupération utilisateur:', err);
@@ -52,7 +52,7 @@ login() {
 ngOnInit() {
     const token = localStorage.getItem('token');
     if (token) {
-      this.router.navigate(['/home']); // déjà connecté
+      this.router.navigate(['']); // déjà connecté
     }
   }
 }

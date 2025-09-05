@@ -15,7 +15,7 @@ export class ProjectCreateComponent {
   name = '';
   description = '';
   tempo = '';
-  
+
   key_signature = '';
   cover_image = '';
   status = '';
@@ -42,7 +42,7 @@ export class ProjectCreateComponent {
     });
 
     // Récupérer la liste des tags depuis Directus
- 
+
   }
 
   createProject() {
@@ -78,4 +78,3 @@ export class ProjectCreateComponent {
     this.router.navigate(['/home']);
   }
 }
-  
