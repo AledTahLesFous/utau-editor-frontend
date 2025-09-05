@@ -5,6 +5,10 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
+import { LoginComponent } from '../login/login.component';
+
+
+LoginComponent
 
 @Component({
   selector: 'app-register',
@@ -22,6 +26,12 @@ export class RegisterComponent {
   constructor(private authService: AuthService, private router: Router) {}
 
   register() {
+
+    if (!this.email || !this.email.includes('@') || !this.email.includes('.')) {
+      this.errorMessage = 'Veuillez saisir une adresse email valide.';
+      return;
+    }
+
     // Vérification mots de passe
     if (this.password !== this.confirmPassword) {
       this.errorMessage = 'Les mots de passe ne correspondent pas.';
