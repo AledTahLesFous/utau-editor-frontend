@@ -9,7 +9,7 @@ import { FormsModule } from '@angular/forms';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './project-view.component.html',
-  styleUrls: ['./project.component.css']
+
 })
 export class ProjectViewComponent implements OnInit {
   name = '';

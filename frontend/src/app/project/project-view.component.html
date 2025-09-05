@@ -1,34 +1,73 @@
-<div class="project-container">
-  <h2>Projet: {{ name }}</h2>
+<div class="max-w-lg mx-auto mt-12 text-center font-sans project-container">
+  <h2 class="text-3xl font-bold mb-6">Projet: {{ name }}</h2>
 
-  <div *ngIf="message">{{ message }}</div>
+  <div *ngIf="message" class="text-green-600 mb-4">{{ message }}</div>
 
-  <div *ngIf="!message">
-    <!-- Affichage ou édition selon editMode -->
-    <div *ngIf="!editMode">
-      <p><strong>Description:</strong> {{ description }}</p>
-      <p><strong>Tempo:</strong> {{ tempo }}</p>
-      <p><strong>Key signature:</strong> {{ key_signature }}</p>
+  <div *ngIf="!message" class="flex flex-col gap-4">
+    <!-- Vue normale -->
+    <div *ngIf="!editMode" class="bg-white p-6 rounded-lg shadow-md">
+      <p class="mb-2"><strong>Description:</strong> {{ description || '—' }}</p>
+      <p class="mb-2"><strong>Tempo:</strong> {{ tempo || 120 }}</p>
+      <p class="mb-4"><strong>Key signature:</strong> {{ key_signature || '—' }}</p>
 
-      <button (click)="editMode = true">Modifier</button>
+      <button
+        (click)="editMode = true"
+        class="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition-colors duration-200 text-sm"
+      >
+        Modifier
+      </button>
     </div>
 
-    <div *ngIf="editMode">
-      <label>Description:</label>
-      <input type="text" [(ngModel)]="description" />
+    <!-- Mode édition -->
+    <div *ngIf="editMode" class="bg-gray-50 p-6 rounded-lg shadow-md flex flex-col gap-4">
+      <input
+        type="text"
+        [(ngModel)]="description"
+        placeholder="Description"
+        class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
 
-      <label>Tempo: {{ tempo }}</label>
-      <input type="range" [(ngModel)]="tempo" min="40" max="300" step="10" />
+      <div class="flex flex-col items-center gap-2">
+        <label class="text-sm font-medium">Tempo: {{ tempo || 120 }}</label>
+        <input
+          type="range"
+          [(ngModel)]="tempo"
+          min="40"
+          max="300"
+          step="10"
+          class="w-full h-2 bg-gray-300 rounded-lg accent-green-500 cursor-pointer"
+        />
+      </div>
 
-      <label>Key signature:</label>
-      <input type="text" [(ngModel)]="key_signature" />
+      <input
+        type="text"
+        [(ngModel)]="key_signature"
+        placeholder="Key signature"
+        class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
 
-      <div class="buttons">
-        <button (click)="updateProject()">Enregistrer</button>
-        <button (click)="cancelEdit()">Annuler</button>
+      <div class="flex justify-center gap-3 mt-4">
+        <button
+          (click)="updateProject()"
+          class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors duration-200 text-sm"
+        >
+          Enregistrer
+        </button>
+
+        <button
+          (click)="cancelEdit()"
+          class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors duration-200 text-sm"
+        >
+          Annuler
+        </button>
       </div>
     </div>
   </div>
 
-  <button (click)="back()">Retour</button>
+  <button
+    (click)="back()"
+    class="mt-6 px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors duration-200 text-sm"
+  >
+    Retour
+  </button>
 </div>

@@ -1,29 +1,77 @@
-<div class="project-container">
-  <h2>Créer un nouveau projet</h2>
+<div class="max-w-lg mx-auto mt-12 text-center font-sans p-6 rounded-lg shadow-md bg-gray-100 project-container">
+  <h2 class="text-2xl font-semibold mb-6">Créer un nouveau projet</h2>
 
-  <form (ngSubmit)="createProject()">
-    <input type="text" [(ngModel)]="name" name="name" placeholder="Nom du projet" required />
+  <form (ngSubmit)="createProject()" class="flex flex-col gap-4">
+    <input
+      type="text"
+      [(ngModel)]="name"
+      name="name"
+      placeholder="Nom du projet"
+      required
+      class="w-full p-3 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+    />
 
     <!-- Bouton Advanced Settings -->
-    <button type="button" class="toggle-advanced" (click)="showAdvanced = !showAdvanced">
+    <button
+      type="button"
+      (click)="showAdvanced = !showAdvanced"
+      class="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition-colors duration-200"
+    >
       {{ showAdvanced ? 'Masquer les paramètres avancés' : 'Advanced Settings' }}
     </button>
 
     <!-- Paramètres avancés -->
-    <div class="advanced-settings" *ngIf="showAdvanced">
-      <input type="text" [(ngModel)]="description" name="description" placeholder="Description du projet" />
+    <div *ngIf="showAdvanced" class="flex flex-col gap-3 mt-4 p-4 border border-gray-300 rounded bg-gray-50">
+      <input
+        type="text"
+        [(ngModel)]="description"
+        name="description"
+        placeholder="Description du projet"
+        class="w-full p-2 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
 
-      <label for="tempo">Tempo: <span id="tempo">{{ tempo || 120 }}</span></label>
-      <input type="range" [(ngModel)]="tempo" name="tempo" min="40" max="300" step="10" value="120" (input)="tempo = $any($event.target).value">
+      <label for="tempo" class="text-sm font-medium">
+        Tempo: <span id="tempo">{{ tempo || 120 }}</span>
+      </label>
+      <input
+        type="range"
+        [(ngModel)]="tempo"
+        name="tempo"
+        min="40"
+        max="300"
+        step="10"
+        value="120"
+        (input)="tempo = $any($event.target).value"
+        class="w-full"
+      />
 
-      <input type="text" [(ngModel)]="key_signature" name="key_signature" placeholder="Key signature" />
+      <input
+        type="text"
+        [(ngModel)]="key_signature"
+        name="key_signature"
+        placeholder="Key signature"
+        class="w-full p-2 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
     </div>
 
-    <div class="buttons">
-      <button type="submit">Créer</button>
-      <button type="button" (click)="back()">Retour</button>
+    <!-- Boutons -->
+    <div class="flex justify-center gap-3 mt-4">
+      <button
+        type="submit"
+        class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm transition-colors duration-200"
+      >
+        Créer
+      </button>
+
+      <button
+        type="button"
+        (click)="back()"
+        class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 text-sm transition-colors duration-200"
+      >
+        Retour
+      </button>
     </div>
   </form>
 
-  <p *ngIf="message">{{ message }}</p>
+  <p *ngIf="message" class="mt-4 text-gray-700">{{ message }}</p>
 </div>

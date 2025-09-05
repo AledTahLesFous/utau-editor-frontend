@@ -9,7 +9,7 @@ import { FormsModule } from '@angular/forms';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './project-create.component.html',
-  styleUrls: ['./project.component.css']
+
 })
 export class ProjectCreateComponent {
   name = '';

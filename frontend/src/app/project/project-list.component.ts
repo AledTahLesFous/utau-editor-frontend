@@ -8,7 +8,7 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './project-list.component.html',
-  styleUrls: ['./project-list.component.css']
+
 })
 export class ProjectListComponent implements OnInit {
   projects: any[] = [];
@@ -26,7 +26,7 @@ export class ProjectListComponent implements OnInit {
     if (!token || !userId) return;
 
     this.http.get(`http://127.0.0.1:8055/items/projects?filter[user_created][_eq]=${userId}`, {
-      headers: { Authorization: `Bearer ${token}` }      
+      headers: { Authorization: `Bearer ${token}` }
     }).subscribe({
       next: (res: any) => this.projects = res.data || [],
       error: (err) => {

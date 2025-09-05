@@ -1,14 +1,34 @@
-<div class="project-list-container">
-  <h2>Mes projets</h2>
-  <div *ngIf="message">{{ message }}</div>
+<div class="max-w-3xl mx-auto mt-12 text-center font-sans project-list-container">
+  <h2 class="text-3xl font-bold mb-6">Mes projets</h2>
 
-  <ul *ngIf="projects.length > 0">
-    <li *ngFor="let project of projects">
-      <strong>{{ project.title }}</strong> - Tempo: {{ project.tempo }}
-      <button (click)="viewProject(project.title)">Voir / Modifier</button>
-      <button (click)="deleteProject(project.id)">Supprimer</button>
+  <div *ngIf="message" class="text-green-600 mb-4">{{ message }}</div>
+
+  <ul *ngIf="projects.length > 0" class="space-y-4">
+    <li
+      *ngFor="let project of projects"
+      class="flex flex-col sm:flex-row justify-between items-center p-4 bg-white rounded-lg shadow hover:shadow-lg transition-shadow duration-200"
+    >
+      <div class="text-left mb-2 sm:mb-0">
+        <strong class="text-lg">{{ project.title }}</strong> - Tempo: {{ project.tempo }}
+      </div>
+
+      <div class="flex gap-2">
+        <button
+          (click)="viewProject(project.title)"
+          class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors duration-200 text-sm"
+        >
+          Voir / Modifier
+        </button>
+
+        <button
+          (click)="deleteProject(project.id)"
+          class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors duration-200 text-sm"
+        >
+          Supprimer
+        </button>
+      </div>
     </li>
   </ul>
 
-  <p *ngIf="projects.length === 0">Aucun projet trouvé.</p>
+  <p *ngIf="projects.length === 0" class="text-gray-500 mt-4">Aucun projet trouvé.</p>
 </div>
