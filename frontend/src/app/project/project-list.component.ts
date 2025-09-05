@@ -2,21 +2,23 @@ import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { AppHeaderComponent} from '../shared/app-header.component'
 
 @Component({
   selector: 'app-project-list',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, AppHeaderComponent],
   templateUrl: './project-list.component.html',
 
 })
 export class ProjectListComponent implements OnInit {
   projects: any[] = [];
   message = '';
-
+  isLoggedIn = false;
   constructor(private http: HttpClient, private router: Router) {}
 
   ngOnInit() {
+    this.isLoggedIn = !!localStorage.getItem('token');
     this.loadProjects();
   }
 

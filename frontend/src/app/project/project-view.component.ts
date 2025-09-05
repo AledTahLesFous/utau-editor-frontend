@@ -3,11 +3,12 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { AppHeaderComponent} from '../shared/app-header.component'
 
 @Component({
   selector: 'app-project-view',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, AppHeaderComponent],
   templateUrl: './project-view.component.html',
 
 })
@@ -18,6 +19,8 @@ export class ProjectViewComponent implements OnInit {
   key_signature = '';
   message = '';
   editMode = false;
+  isLoggedIn = false;
+
   projectId: string | null = null;
 
   constructor(
@@ -27,6 +30,7 @@ export class ProjectViewComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    this.isLoggedIn = !!localStorage.getItem('token');
     const token = localStorage.getItem('token');
     if (!token) return;
 

@@ -5,12 +5,13 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProjectService } from './project.service';
 import { AuthService } from '../auth/auth.service';
+import { AppHeaderComponent } from '../shared/app-header.component';
 
 
 @Component({
   selector: 'app-project',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, AppHeaderComponent],
   templateUrl: './project-create.component.html',
 })
 export class ProjectCreateComponent implements OnInit {
@@ -27,6 +28,9 @@ export class ProjectCreateComponent implements OnInit {
   showAdvanced = false;
   message = '';
 
+  isLoggedIn = false;
+
+
   constructor(
     private http: HttpClient,
     private router: Router,
@@ -36,6 +40,8 @@ export class ProjectCreateComponent implements OnInit {
 
   ngOnInit() {
     const token = localStorage.getItem('token');
+    this.isLoggedIn = !!localStorage.getItem('token');
+
     if (!token) return;
 
     this.authService.getMe(token).subscribe({
@@ -83,6 +89,6 @@ export class ProjectCreateComponent implements OnInit {
   }
 
   back() {
-    this.router.navigate(['/home']);
+    this.router.navigate(['']);
   }
 }
