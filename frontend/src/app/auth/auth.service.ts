@@ -18,6 +18,7 @@ export class AuthService {
     return this.http.post(`${this.directusUrl}/users/register`, userData);
   }
 
+
   // Récupérer les infos de l'utilisateur connecté
   getMe(token: string): Observable<any> {
     return this.http.get(`${this.directusUrl}/users/me`, {

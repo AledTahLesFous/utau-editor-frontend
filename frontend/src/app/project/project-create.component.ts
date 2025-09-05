@@ -1,21 +1,22 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ProjectService } from './project.service';
+import { AuthService } from '../auth/auth.service';
+
 
 @Component({
   selector: 'app-project',
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './project-create.component.html',
-
 })
-export class ProjectCreateComponent {
+export class ProjectCreateComponent implements OnInit {
   name = '';
   description = '';
-  tempo = '';
-
+  tempo: number = 120;
   key_signature = '';
   cover_image = '';
   status = '';
@@ -24,25 +25,26 @@ export class ProjectCreateComponent {
 
   currentUserId: string | null = null;
   showAdvanced = false;
-
   message = '';
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    private projectService: ProjectService,
+    private authService: AuthService
+  ) {}
 
   ngOnInit() {
     const token = localStorage.getItem('token');
     if (!token) return;
 
-    // Récupérer l'utilisateur connecté
-    this.http.get('http://127.0.0.1:8055/users/me', {
-      headers: { Authorization: `Bearer ${token}` }
-    }).subscribe({
+    this.authService.getMe(token).subscribe({
       next: (user: any) => this.currentUserId = user.data.id,
-      error: (err) => console.error('Erreur récupération utilisateur:', err)
+      error: (err) => {
+        console.error('Erreur récupération utilisateur:', err);
+        this.message = 'Impossible de récupérer l’utilisateur connecté.';
+      }
     });
-
-    // Récupérer la liste des tags depuis Directus
-
   }
 
   createProject() {
@@ -57,21 +59,27 @@ export class ProjectCreateComponent {
       user_created: this.currentUserId,
     };
 
+    if (this.description && this.description.trim() !== '') {
+      projectData.description = this.description;
+    }
+    if (this.tempo) {
+      projectData.tempo = this.tempo;
+    }
+    if (this.key_signature && this.key_signature.trim() !== '') {
+      projectData.key_signature = this.key_signature;
+    }
 
-
-    this.http.post('http://127.0.0.1:8055/items/projects', projectData, {
-      headers: { Authorization: `Bearer ${token}` }
-    }).subscribe({
-      next: () => this.message = 'Projet créé avec succès !',
+    // Appel via ProjectService
+    this.projectService.createProject(projectData, token).subscribe({
+      next: () => {
+        this.message = 'Projet créé avec succès !';
+        this.router.navigate(['/project', this.name]);
+      },
       error: (err) => {
         console.error(err);
         this.message = 'Erreur lors de la création du projet';
       }
     });
-
-
-    this.router.navigate(['/project', this.name]);
-
   }
 
   back() {
