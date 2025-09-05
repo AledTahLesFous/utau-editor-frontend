@@ -13,7 +13,7 @@ export class HomeComponent {
   logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('userID');
-    this.router.navigate(['']);
+    this.router.navigate(['/auth']); // a modifier
   }
 
   goToCreateProjet() {

@@ -13,7 +13,6 @@ import { of } from 'rxjs';
   templateUrl: './auth.component.html',
 })
 export class AuthComponent implements OnInit {
-  // Mode flip
   isFlipped = false;
 
   // Login fields
@@ -25,8 +24,9 @@ export class AuthComponent implements OnInit {
   confirmPassword = '';
 
   errorMessage = '';
-
-
+  successMessage = '';
+  isNotificationLeaving = false;
+  
   constructor(private authService: AuthService, private router: Router) {}
 
   ngOnInit(): void {
@@ -36,10 +36,21 @@ export class AuthComponent implements OnInit {
     }
   }
 
-  flipCard() {
-    this.isFlipped = !this.isFlipped;
-    this.errorMessage = '';
+flipCard(showSuccess = false, successMsg: string = '') {
+  this.isFlipped = !this.isFlipped;
+  this.errorMessage = '';
+
+  if (showSuccess && successMsg) {
+    this.successMessage = successMsg;
+
+    // Faire disparaître la notification après 4 secondes
+    setTimeout(() => {
+      this.successMessage = '';
+    }, 4000);
   }
+}
+
+
 
   login() {
     this.authService.login(this.email, this.password).subscribe({
@@ -65,36 +76,42 @@ export class AuthComponent implements OnInit {
     });
   }
 
-  register() {
-    if (!this.email.includes('@') || !this.email.includes('.')) {
-      this.errorMessage = 'Veuillez saisir une adresse email valide.';
-      return;
-    }
-
-    if (this.password !== this.confirmPassword) {
-      this.errorMessage = 'Les mots de passe ne correspondent pas.';
-      return;
-    }
-
-    const userData = {
-      first_name: this.first_name,
-      email: this.email,
-      password: this.password
-    };
-
-    this.authService.registerUser(userData)
-      .pipe(
-        catchError(err => {
-          console.error(err);
-          this.errorMessage = err?.error?.message || 'Erreur lors de l’inscription.';
-          return of(null);
-        })
-      )
-      .subscribe(res => {
-        if (res) {
-          console.log('Utilisateur créé:', res);
-          this.flipCard(); // Revenir sur le formulaire de login
-        }
-      });
+register() {
+  if (!this.email.includes('@') || !this.email.includes('.')) {
+    this.errorMessage = 'Veuillez saisir une adresse email valide.';
+    return;
   }
+
+  if (this.password !== this.confirmPassword) {
+    this.errorMessage = 'Les mots de passe ne correspondent pas.';
+    return;
+  }
+
+  const userData = { first_name: this.first_name, email: this.email, password: this.password };
+
+  this.authService.registerUser(userData)
+    .pipe(catchError(err => {
+      this.errorMessage = err?.error?.message || 'Erreur lors de l’inscription.';
+      return of(null);
+    }))
+    .subscribe(() => {
+      this.flipCard();
+
+      this.successMessage = 'Utilisateur créé ! Connectez-vous.';
+      this.isNotificationLeaving = false;
+
+      // Après 3s, lance l'animation slide-out
+      setTimeout(() => {
+        this.isNotificationLeaving = true;
+      }, 3000);
+
+      // Après 3.5s, supprime le message
+      setTimeout(() => {
+        this.successMessage = '';
+      }, 3500);
+    });
 }
+
+
+}
+
