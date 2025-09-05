@@ -25,6 +25,6 @@ export class HomeComponent {
   }
 
   goToLogin() {
-    this.router.navigate(['/login']); // page de visualisation de tous les projets
+    this.router.navigate(['/auth']); // page de visualisation de tous les projets
   }
 }
