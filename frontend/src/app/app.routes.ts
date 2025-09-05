@@ -14,7 +14,8 @@ export const routes: Routes = [
   { path: 'project', component: ProjectCreateComponent, canActivate: [AuthGuard] },
   { path: 'projects', component: ProjectListComponent, canActivate: [AuthGuard] }, // liste des projets
   { path: 'project/:name', component: ProjectViewComponent, canActivate: [AuthGuard] },
-  { path: '', component: HomeComponent}
+  { path: '', component: HomeComponent},
+  { path: '**', redirectTo: '' }
 ];
 
 
