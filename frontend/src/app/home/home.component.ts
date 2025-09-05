@@ -4,7 +4,6 @@ import { Router } from '@angular/router';
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
-  styleUrls: ['./home.component.css']
 })
 export class HomeComponent {
   userName = localStorage.getItem('userName') || 'Utilisateur';
@@ -23,5 +22,9 @@ export class HomeComponent {
 
   goToViewProjects() {
     this.router.navigate(['/projects']); // page de visualisation de tous les projets
+  }
+
+  goToLogin() {
+    this.router.navigate(['/login']); // page de visualisation de tous les projets
   }
 }

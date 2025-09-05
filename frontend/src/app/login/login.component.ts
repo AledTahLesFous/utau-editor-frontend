@@ -55,4 +55,9 @@ ngOnInit() {
       this.router.navigate(['']); // déjà connecté
     }
   }
+  goToRegister() {
+    this.router.navigate(['/register']); // page de visualisation de tous les projets
+  }
+
+
 }

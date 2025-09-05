@@ -18,6 +18,7 @@
       required
       class="w-full p-3 mb-4 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500"
     />
+
     <button
       type="submit"
       class="p-3 bg-green-500 text-white rounded hover:bg-green-600 text-sm font-medium transition-colors duration-200"
@@ -27,4 +28,10 @@
   </form>
 
   <p *ngIf="errorMessage" class="text-red-600 mt-4 text-sm">{{ errorMessage }}</p>
+
+  <!-- 🔽 Lien Register -->
+  <p class="mt-6 text-sm text-gray-700">
+    Pas encore inscrit ?
+    <a (click)="goToRegister()" class="text-blue-600 hover:underline cursor-pointer">Créer un compte</a>
+  </p>
 </div>
