@@ -2,7 +2,10 @@
 <div class="relative w-full px-6 py-4 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800 shadow-md flex items-center justify-between">
   
   <!-- Logo ou titre -->
-  <div class="text-xl font-bold text-gray-900 dark:text-white">
+  <div 
+    class="text-xl font-bold text-gray-900 dark:text-white cursor-pointer hover:scale-105 transition-transform duration-200"
+    (click)="goHome()"
+  >
     MyApp
   </div>
 

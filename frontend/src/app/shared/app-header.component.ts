@@ -30,6 +30,11 @@ export class AppHeaderComponent {
     }
   }
 
+  goHome() {
+    this.router.navigate(['']);
+
+  }
+
   goToViewProjects() {
     if (!this.isLoggedIn) {
       this.router.navigate(['/auth']);
