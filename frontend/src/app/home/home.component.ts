@@ -52,9 +52,10 @@ goToCreateProjet() {
   this.router.navigate(['/project']);
 }
 
-  goToViewProjects() {
-    this.router.navigate(['/projects']);
+  goToProject(title: string) {
+    this.router.navigate(['/project-view', title]);
   }
+
 
   goToLogin() {
     this.router.navigate(['/auth']);

@@ -15,26 +15,30 @@
       </button>
 
             <!-- Liste des projets -->
-      <div class="mt-12">
-        <h2 class="text-2xl font-bold mb-6">Projets en cours</h2>
+<div class="mt-12">
+  <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-8">Projets en cours</h2>
 
-        <div *ngIf="loading">Chargement des projets...</div>
-        <div *ngIf="error">{{ error }}</div>
+  <div *ngIf="loading" class="text-gray-700 dark:text-gray-300 text-lg">Chargement des projets...</div>
+  <div *ngIf="error" class="text-red-600 dark:text-red-400 font-semibold">{{ error }}</div>
+  <div *ngIf="!loading && projets.length === 0" class="text-gray-500 dark:text-gray-400 italic">Aucun projet trouvé.</div>
 
-        <div *ngIf="!loading && projets.length === 0">Aucun projet trouvé.</div>
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-6">
+    <div
+      *ngFor="let projet of projets"
+      class="bg-white dark:bg-gray-900 rounded-xl shadow-lg p-6 transition-transform hover:scale-105 hover:shadow-xl"
+    >
+      <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">{{ projet.title }}</h3>
+      <p class="text-gray-700 dark:text-gray-300 mb-4 line-clamp-3">{{ projet.description }}</p>
+      <button
+        (click)="goToProject(projet.title)"
+        class="px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-medium shadow hover:brightness-110 transition"
+      >
+        Voir le projet
+      </button>
+    </div>
+  </div>
+</div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div
-            *ngFor="let projet of projets"
-            class="p-6 bg-white dark:bg-gray-900 rounded-lg shadow"
-          >
-            <h3 class="text-xl font-semibold mb-2">{{ projet.title }}</h3>
-            <p class="text-gray-700 dark:text-gray-300 mb-4">
-              {{ projet.description }}
-            </p>
-          </div>
-        </div>
-      </div>
 
     </div>
   </div>
