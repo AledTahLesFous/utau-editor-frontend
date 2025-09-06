@@ -13,6 +13,29 @@
       >
         Se déconnecter (debug)
       </button>
+
+            <!-- Liste des projets -->
+      <div class="mt-12">
+        <h2 class="text-2xl font-bold mb-6">Projets en cours</h2>
+
+        <div *ngIf="loading">Chargement des projets...</div>
+        <div *ngIf="error">{{ error }}</div>
+
+        <div *ngIf="!loading && projets.length === 0">Aucun projet trouvé.</div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div
+            *ngFor="let projet of projets"
+            class="p-6 bg-white dark:bg-gray-900 rounded-lg shadow"
+          >
+            <h3 class="text-xl font-semibold mb-2">{{ projet.title }}</h3>
+            <p class="text-gray-700 dark:text-gray-300 mb-4">
+              {{ projet.description }}
+            </p>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>

@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { Projet } from '../models/project.model'; // adapte le chemin si besoin
+
 
 @Injectable({
   providedIn: 'root'
@@ -16,5 +18,7 @@ export class ProjectService {
     });
   }
 
-  // tu peux ajouter d'autres méthodes : getProjects, deleteProject, updateProject...
+  getProjects(): Observable<{ data: Projet[] }> {
+    return this.http.get<{ data: Projet[] }>(this.apiUrl);
+  }
 }
