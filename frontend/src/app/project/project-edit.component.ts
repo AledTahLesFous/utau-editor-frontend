@@ -13,7 +13,7 @@ import { AppHeaderComponent} from '../shared/app-header.component'
 
 })
 export class ProjectEditComponent implements OnInit {
-  title = '';
+  name = '';
   description = '';
   tempo = '';
   key_signature = '';
@@ -34,10 +34,10 @@ export class ProjectEditComponent implements OnInit {
     const token = localStorage.getItem('token');
     if (!token) return;
 
-    const projectName = this.route.snapshot.paramMap.get('title');
+    const projectName = this.route.snapshot.paramMap.get('name');
     if (!projectName) return;
 
-    this.title = projectName;
+    this.name = projectName;
 
     // Récupérer le projet depuis Directus
     this.http.get(`http://127.0.0.1:8055/items/projects?filter[title][_eq]=${projectName}`, {
@@ -60,14 +60,6 @@ export class ProjectEditComponent implements OnInit {
       }
     });
   }
-
-  goToMyProject() {
-  const title = localStorage.getItem('myProjectTitle');
-  if (title) {
-    this.router.navigate(['/project', title]);
-  }
-}
-
 
   updateProject() {
     const token = localStorage.getItem('token');
@@ -100,6 +92,6 @@ export class ProjectEditComponent implements OnInit {
   }
 
   back() {
-    this.router.navigate(['/projects']);
+    this.router.navigate(['/project']);
   }
 }

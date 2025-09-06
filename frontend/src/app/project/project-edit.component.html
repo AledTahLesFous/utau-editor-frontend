@@ -4,14 +4,14 @@
 
   <!-- Container projet -->
   <div class="relative max-w-lg mx-auto mt-12 text-center font-sans p-6 rounded-3xl shadow-2xl bg-white/20 backdrop-blur-2xl border border-white/30">
-    <h2 class="text-3xl font-extrabold text-gray-900 dark:text-white mb-6">Projet: {{ title }}</h2>
+    <h2 class="text-3xl font-extrabold text-gray-900 dark:text-white mb-6">Projet: {{ name }}</h2>
 
     <div *ngIf="message" class="bg-emerald-500 text-white px-4 py-2 rounded-xl shadow mb-4 animate-fade-in-out">
       {{ message }}
     </div>
 
     <div *ngIf="!message" class="flex flex-col gap-4">
-
+      
       <!-- Vue normale -->
       <div *ngIf="!editMode" class="bg-white/30 backdrop-blur-sm p-6 rounded-2xl shadow-md">
         <p class="mb-2 text-gray-900 dark:text-white"><strong>Description:</strong> {{ description || '—' }}</p>
