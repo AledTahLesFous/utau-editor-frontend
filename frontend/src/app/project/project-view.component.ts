@@ -131,7 +131,7 @@ playProject() {
   return Promise.resolve(null);
 }
 
-    const url = `http://127.0.0.1:8055/assets/${note.voicebank_sample.id}`;
+const url = `http://127.0.0.1:8055/voicebanks/${note.voicebank_id}/samples/${note.voicebank_sample.filename}`;
 
     return fetch(url)
       .then(res => res.arrayBuffer())
