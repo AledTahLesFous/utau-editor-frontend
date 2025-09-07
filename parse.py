@@ -73,7 +73,7 @@ print(f"✅ Exported {len(samples)} samples to {output_json}")
 # Config Directus
 DIRECTUS_URL = "http://127.0.0.1:8055"  # adapte si tu es en local
 API_TOKEN = "CBhG1Y3VXAzqd6NuHUMKeX9B9v4WcrjN"
-VOICEBANK_ID = "bfb580f0-3d8b-4c0d-abdc-f0d5cb2670c6"  # récupérable depuis l'admin
+VOICEBANK_ID = "69c15678-85ab-4a55-98ae-0cf6c49cfd69"  # récupérable depuis l'admin
 
 headers = {
     "Authorization": f"Bearer {API_TOKEN}",
