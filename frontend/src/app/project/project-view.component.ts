@@ -40,7 +40,7 @@ const projectName = this.route.snapshot.paramMap.get('name'); // pas 'title'
   if (!projectName) return;
 
 
-  
+
 
   this.http.get(`http://127.0.0.1:8055/items/projects?filter[title][_eq]=${projectName}`)
     .subscribe({
@@ -54,7 +54,7 @@ const projectName = this.route.snapshot.paramMap.get('name'); // pas 'title'
           this.tempo = project.tempo;
           this.key_signature = project.key_signature;
 
-          
+
           this.loadNotes(this.projectId);
         } else {
           this.message = 'Projet introuvable';
@@ -131,7 +131,8 @@ playProject() {
   return Promise.resolve(null);
 }
 
-const url = `http://127.0.0.1:8055/voicebanks/${note.voicebank_id}/samples/${note.voicebank_sample.filename}`;
+const url = `http://127.0.0.1:8055/download-voicebank/${note.voicebank_id}/sample-romaji/${note.voicebank_sample.alias_romaji}`;
+
 
     return fetch(url)
       .then(res => res.arrayBuffer())
