@@ -1,4 +1,9 @@
 ## A Faire
+
+
+Prochaine étape :
+- Faire script parsing .wav en romanji
+
 ---
 ### 1. Pour création projet :
 - Faire juste le *required*
