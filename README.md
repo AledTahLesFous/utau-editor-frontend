@@ -3,7 +3,7 @@
 
 Prochaine étape :
 - Faire script parsing .wav en romanji
-
+- Creer interface pour ajouter notes **
 ---
 ### 1. Pour création projet :
 - Faire juste le *required*
