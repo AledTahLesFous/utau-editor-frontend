@@ -36,8 +36,8 @@ print(f"✅ Projet créé : {PROJECT_ID}")
 # 🎶 Étape 2 : Ajouter quelques notes
 # Exemple avec les alias_romaji les plus courants (vérifie qu’ils existent dans ta base)
 example_notes = [
-    {"lyrics": "a", "pitch": 60, "start_time": 0, "duration": 500},
-    {"lyrics": "i", "pitch": 62, "start_time": 600, "duration": 500},
+    {"lyrics": "u", "pitch": 60, "start_time": 0, "duration": 500},
+    {"lyrics": "u", "pitch": 62, "start_time": 600, "duration": 500},
     {"lyrics": "u", "pitch": 64, "start_time": 1200, "duration": 500},
 ]
 
