@@ -22,7 +22,7 @@ export class ProjectEditComponent implements OnInit {
   editMode = false;
   isLoggedIn = false;
 
-  projectId: string | null = null;
+  projectId = '';
 
   midiNotes = Array.from({ length: 24 }, (_, i) => 71 - i);
   readonly lowestPitch = 48;
@@ -33,6 +33,10 @@ export class ProjectEditComponent implements OnInit {
 
   phonemeBuffers: { [name: string]: AudioBuffer } = {};
   notePlayers: { name: string, startTime: number, pitch: number, velocity: number }[] = [];
+
+
+  phonemes: any[] = [];
+  selectedPhoneme: string = '';
 
   constructor(
     private route: ActivatedRoute,
@@ -61,6 +65,8 @@ export class ProjectEditComponent implements OnInit {
           this.description = project.description;
           this.tempo = project.tempo;
           this.key_signature = project.key_signature;
+          this.loadNotes(this.projectId);
+          this.fetchPhonemes();
         } else {
           this.message = 'Projet introuvable';
         }
@@ -80,6 +86,38 @@ export class ProjectEditComponent implements OnInit {
   const relativePitch = this.highestPitch - pitch;
   return relativePitch * this.noteHeight;
 }
+
+fetchPhonemes() {
+  this.http.get<any>('http://127.0.0.1:8055/items/phonemes')
+    .subscribe(res => {
+      this.phonemes = res.data;
+      if (this.phonemes.length > 0) {
+        this.selectedPhoneme = this.phonemes[0].name; // Choix par défaut
+      }
+    });
+}
+
+  loadNotes(projectId: string) {
+    this.http.get(`http://127.0.0.1:8055/items/notes?filter[project_id][_eq]=${projectId}`)
+      .subscribe({
+        next: (res: any) => {
+          this.notes = res.data || [];
+          if (!this.notes.length) return;
+
+          const phonemeIds = Array.from(new Set(this.notes.map(n => n.phoneme_id)));
+          this.http.get(`http://127.0.0.1:8055/items/phonemes?filter[id][_in]=${phonemeIds.join(',')}`)
+            .subscribe((phonemesRes: any) => {
+              const phonemes = phonemesRes.data || [];
+              this.notes.forEach(note => {
+                note.phoneme = phonemes.find((p: any) => p.id === note.phoneme_id);
+              });
+            });
+        },
+        error: (err) => console.error('Erreur récupération notes:', err)
+      });
+  }
+
+
 
   updateProject() {
     const token = localStorage.getItem('token');

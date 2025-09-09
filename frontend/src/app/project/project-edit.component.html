@@ -108,7 +108,18 @@
   </div>
 </div>
 
-
+<!-- Choix du phoneme -->
+<div class="flex flex-col items-center gap-2">
+  <label class="text-sm font-medium text-gray-900 dark:text-white">Phonème</label>
+  <select
+    [(ngModel)]="selectedPhoneme"
+    class="w-full p-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white/70 dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-400"
+  >
+    <option *ngFor="let phoneme of phonemes" [value]="phoneme.name">
+      {{ phoneme.name }}
+    </option>
+  </select>
+</div>
 
 </div>
 <div class="mt-6 flex gap-4 justify-center">
