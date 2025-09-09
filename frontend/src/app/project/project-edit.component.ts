@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AppHeaderComponent} from '../shared/app-header.component'
+import * as Tone from 'tone';
 
 @Component({
   selector: 'app-project-edit',
@@ -13,7 +14,7 @@ import { AppHeaderComponent} from '../shared/app-header.component'
 
 })
 export class ProjectEditComponent implements OnInit {
-  name = '';
+  title = '';
   description = '';
   tempo = '';
   key_signature = '';
@@ -22,6 +23,16 @@ export class ProjectEditComponent implements OnInit {
   isLoggedIn = false;
 
   projectId: string | null = null;
+
+  midiNotes = Array.from({ length: 24 }, (_, i) => 71 - i);
+  readonly lowestPitch = 48;
+  readonly highestPitch = 71;
+  readonly noteHeight = 20;
+  zoomFactor = 5;
+  notes: any[] = [];
+
+  phonemeBuffers: { [name: string]: AudioBuffer } = {};
+  notePlayers: { name: string, startTime: number, pitch: number, velocity: number }[] = [];
 
   constructor(
     private route: ActivatedRoute,
@@ -37,7 +48,7 @@ export class ProjectEditComponent implements OnInit {
     const projectName = this.route.snapshot.paramMap.get('name');
     if (!projectName) return;
 
-    this.name = projectName;
+    this.title = projectName;
 
     // Récupérer le projet depuis Directus
     this.http.get(`http://127.0.0.1:8055/items/projects?filter[title][_eq]=${projectName}`, {
@@ -60,6 +71,15 @@ export class ProjectEditComponent implements OnInit {
       }
     });
   }
+
+
+  getNoteLeft(startTime: number) { return startTime / this.zoomFactor; }
+  getNoteWidth(duration: number) { return duration / this.zoomFactor; }
+  getNoteY(pitch: number): number {
+  // Inverse le Y pour que pitch haut soit en haut
+  const relativePitch = this.highestPitch - pitch;
+  return relativePitch * this.noteHeight;
+}
 
   updateProject() {
     const token = localStorage.getItem('token');
@@ -94,4 +114,59 @@ export class ProjectEditComponent implements OnInit {
   back() {
     this.router.navigate(['/projects']);
   }
+
+
+
+  async initializeAudio() {
+      if (!this.notes || this.notes.length === 0) return;
+
+      // Précharge les buffers uniques
+      const phonemeNames = Array.from(new Set(this.notes.map(n => n.phoneme?.name).filter(Boolean)));
+
+      await Promise.all(phonemeNames.map(async name => {
+        const url = `http://127.0.0.1:8055/download-voicebank/${this.notes[0].voicebank_id}/sample-romaji/${name}`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`Échec chargement phoneme ${name}`);
+        const arrayBuffer = await res.arrayBuffer();
+        this.phonemeBuffers[name] = await Tone.context.decodeAudioData(arrayBuffer);
+      }));
+
+      // Préparer chaque note individuellement
+      this.notePlayers = [];
+      this.notes.forEach(note => {
+        if (!note.phoneme?.name) return;
+        this.notePlayers.push({
+          name: note.phoneme.name,
+          startTime: note.start_time / 1000, // ms → s
+          pitch: note.pitch,
+          velocity: note.velocity || 1
+        });
+      });
+
+      console.log('✅ Audio initialisé avec Tone.js');
+    }
+
+    async playAudio() {
+      if (!this.notePlayers.length) return;
+
+      await Tone.start(); // nécessaire pour iOS et autoplay policy
+      const now = Tone.now();
+
+      this.notePlayers.forEach(n => {
+        const buffer = this.phonemeBuffers[n.name];
+        if (!buffer) return;
+
+        // Chaque note est jouée via un player avec pitch-shift
+        const player = new Tone.Player(buffer).toDestination();
+
+        // Calcule la transposition par demi-tons (note MIDI)
+        const semitoneDiff = n.pitch - 60; // 60 = pitch de référence
+        player.playbackRate = Math.pow(2, semitoneDiff / 12);
+
+        // Démarrage au temps correct
+        player.start(now + n.startTime);
+      });
+
+      console.log('▶️ Lecture des notes lancée');
+    }
 }
