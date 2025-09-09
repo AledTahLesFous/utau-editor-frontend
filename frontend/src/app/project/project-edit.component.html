@@ -93,6 +93,7 @@
 <div
   class="relative grid-background overflow-hidden"
   style="height: 500px; width: 3000px; position: relative;"
+  (click)="onTimelineClick($event)"
 >
   <div
     *ngFor="let note of notes"

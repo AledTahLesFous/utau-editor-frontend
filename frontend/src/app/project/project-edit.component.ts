@@ -78,6 +78,56 @@ export class ProjectEditComponent implements OnInit {
     });
   }
 
+onTimelineClick(event: MouseEvent) {
+  if (!this.selectedPhoneme || !this.projectId) return;
+
+  const gridElement = event.currentTarget as HTMLElement;
+  const rect = gridElement.getBoundingClientRect();
+
+  const clickX = event.clientX - rect.left;
+  const clickY = event.clientY - rect.top;
+
+  const clickedPitch = this.highestPitch - Math.floor(clickY / this.noteHeight);
+  if (clickedPitch < this.lowestPitch || clickedPitch > this.highestPitch) return;
+
+  const startTime = Math.floor(clickX * this.zoomFactor);
+
+  const phoneme = this.phonemes.find(p => p.name === this.selectedPhoneme);
+  if (!phoneme) {
+    console.error('Phoneme sélectionné introuvable');
+    return;
+  }
+
+  const newNote = {
+    project_id: this.projectId,
+    start_time: startTime,
+    duration: 500,
+    pitch: clickedPitch,
+    lyrics: this.selectedPhoneme,
+    voicebank_id: "e2c87d46-a184-4431-aa72-eb6b66112c52",
+    phoneme_id: phoneme.id,
+    order_index: this.notes.length
+  };
+
+  const token = localStorage.getItem('token');
+  this.http.post(`http://127.0.0.1:8055/items/notes`, newNote, {
+    headers: { Authorization: `Bearer ${token}` }
+  }).subscribe({
+    next: (res: any) => {
+      this.notes.push({
+        ...newNote,
+        id: res.data.id,
+        phoneme: { name: this.selectedPhoneme }
+      });
+    },
+    error: err => {
+      console.error('Erreur ajout note:', err);
+      alert('Erreur ajout note: ' + JSON.stringify(err.error));
+    }
+  });
+}
+
+
 
   getNoteLeft(startTime: number) { return startTime / this.zoomFactor; }
   getNoteWidth(duration: number) { return duration / this.zoomFactor; }
