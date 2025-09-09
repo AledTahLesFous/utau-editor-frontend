@@ -5,6 +5,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AppHeaderComponent } from '../shared/app-header.component';
 
+// Assure-toi d'installer Tone.js : npm install tone
+import * as Tone from 'tone';
+
 @Component({
   selector: 'app-project-view',
   standalone: true,
@@ -20,10 +23,21 @@ export class ProjectViewComponent implements OnInit {
   editMode = false;
   isLoggedIn = false;
   notes: any[] = [];
-  noteHeight = 20;
-  midiNotes = Array.from({ length: 128 }, (_, i) => 127 - i); // de 127 à 0
-  zoomFactor = 5; // 1 pixel = 5 ms
+
+  midiNotes = Array.from({ length: 24 }, (_, i) => 71 - i);
+
+
+
+
+  readonly lowestPitch = 48;
+  readonly highestPitch = 71;
+  readonly noteHeight = 20;
+  zoomFactor = 5;
   projectId = '';
+
+  // AUDIO
+  phonemeBuffers: { [name: string]: AudioBuffer } = {};
+  notePlayers: { name: string, startTime: number, pitch: number, velocity: number }[] = [];
 
   constructor(
     private route: ActivatedRoute,
@@ -59,88 +73,89 @@ export class ProjectViewComponent implements OnInit {
       });
   }
 
-loadNotes(projectId: string) {
-  this.http.get(`http://127.0.0.1:8055/items/notes?filter[project_id][_eq]=${projectId}`)
-    .subscribe({
-      next: (res: any) => {
-        this.notes = res.data || [];
-        if (this.notes.length === 0) return;
+  loadNotes(projectId: string) {
+    this.http.get(`http://127.0.0.1:8055/items/notes?filter[project_id][_eq]=${projectId}`)
+      .subscribe({
+        next: (res: any) => {
+          this.notes = res.data || [];
+          if (!this.notes.length) return;
 
-        // Récupérer tous les phoneme_ids uniques
-        const phonemeIds = Array.from(new Set(this.notes.map(n => n.phoneme_id)));
-
-        // Récupérer tous les phonemes
-        this.http.get(`http://127.0.0.1:8055/items/phonemes?filter[id][_in]=${phonemeIds.join(',')}`)
-          .subscribe((phonemesRes: any) => {
-            const phonemes = phonemesRes.data || [];
-
-            // Ajouter phoneme aux notes
-            this.notes.forEach(note => {
-              note.phoneme = phonemes.find((p: any) => p.id === note.phoneme_id);
+          const phonemeIds = Array.from(new Set(this.notes.map(n => n.phoneme_id)));
+          this.http.get(`http://127.0.0.1:8055/items/phonemes?filter[id][_in]=${phonemeIds.join(',')}`)
+            .subscribe((phonemesRes: any) => {
+              const phonemes = phonemesRes.data || [];
+              this.notes.forEach(note => {
+                note.phoneme = phonemes.find((p: any) => p.id === note.phoneme_id);
+              });
             });
-          });
-      },
-      error: (err) => console.error('Erreur récupération notes:', err)
-    });
+        },
+        error: (err) => console.error('Erreur récupération notes:', err)
+      });
+  }
+
+  getNoteLeft(startTime: number) { return startTime / this.zoomFactor; }
+  getNoteWidth(duration: number) { return duration / this.zoomFactor; }
+
+getNoteY(pitch: number): number {
+  // Inverse le Y pour que pitch haut soit en haut
+  const relativePitch = this.highestPitch - pitch;
+  return relativePitch * this.noteHeight;
 }
+  back() { this.router.navigate(['']); }
 
-
-  getNoteLeft(startTime: number): number {
-    return startTime / this.zoomFactor;
-  }
-
-  getNoteWidth(duration: number): number {
-    return duration / this.zoomFactor;
-  }
-
-  getNoteY(pitch: number): number {
-    const totalNotes = 128;
-    return (totalNotes - pitch) * this.noteHeight;
-  }
-
-  back() {
-    this.router.navigate(['']);
-  }
-
-  playProject() {
+  // ----------------------------
+  // AUDIO LOGIC avec Tone.js
+  // ----------------------------
+  async initializeAudio() {
     if (!this.notes || this.notes.length === 0) return;
 
-    const audioCtx = new AudioContext();
+    // Précharge les buffers uniques
+    const phonemeNames = Array.from(new Set(this.notes.map(n => n.phoneme?.name).filter(Boolean)));
 
-    const promises = this.notes.map(note => {
-      if (!note.phoneme || !note.phoneme.name) {
-        console.warn('Note sans phoneme:', note);
-        return Promise.resolve(null);
-      }
+    await Promise.all(phonemeNames.map(async name => {
+      const url = `http://127.0.0.1:8055/download-voicebank/${this.notes[0].voicebank_id}/sample-romaji/${name}`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`Échec chargement phoneme ${name}`);
+      const arrayBuffer = await res.arrayBuffer();
+      this.phonemeBuffers[name] = await Tone.context.decodeAudioData(arrayBuffer);
+    }));
 
-      const url = `http://127.0.0.1:8055/download-voicebank/${note.voicebank_id}/sample-romaji/${note.phoneme.name}`;
-
-      return fetch(url)
-        .then(res => {
-          if (!res.ok) {
-            throw new Error(`Erreur HTTP: ${res.status}`);
-          }
-          return res.arrayBuffer();
-        })
-        .then(arrayBuffer => audioCtx.decodeAudioData(arrayBuffer))
-        .then(audioBuffer => ({
-          audioBuffer,
-          startTime: note.start_time / 1000 // ms -> s
-        }))
-        .catch(err => {
-          console.error('Erreur lecture note:', err);
-          return null;
-        });
-    });
-
-    Promise.all(promises).then(buffers => {
-      buffers.forEach(b => {
-        if (!b) return;
-        const source = audioCtx.createBufferSource();
-        source.buffer = b.audioBuffer;
-        source.connect(audioCtx.destination);
-        source.start(audioCtx.currentTime + b.startTime);
+    // Préparer chaque note individuellement
+    this.notePlayers = [];
+    this.notes.forEach(note => {
+      if (!note.phoneme?.name) return;
+      this.notePlayers.push({
+        name: note.phoneme.name,
+        startTime: note.start_time / 1000, // ms → s
+        pitch: note.pitch,
+        velocity: note.velocity || 1
       });
     });
+
+    console.log('✅ Audio initialisé avec Tone.js');
+  }
+
+  async playAudio() {
+    if (!this.notePlayers.length) return;
+
+    await Tone.start(); // nécessaire pour iOS et autoplay policy
+    const now = Tone.now();
+
+    this.notePlayers.forEach(n => {
+      const buffer = this.phonemeBuffers[n.name];
+      if (!buffer) return;
+
+      // Chaque note est jouée via un player avec pitch-shift
+      const player = new Tone.Player(buffer).toDestination();
+
+      // Calcule la transposition par demi-tons (note MIDI)
+      const semitoneDiff = n.pitch - 60; // 60 = pitch de référence
+      player.playbackRate = Math.pow(2, semitoneDiff / 12);
+
+      // Démarrage au temps correct
+      player.start(now + n.startTime);
+    });
+
+    console.log('▶️ Lecture des notes lancée');
   }
 }
