@@ -177,9 +177,7 @@ export class ProjectEditComponent implements OnInit {
   }
 
   onTimelineClick(event: MouseEvent) {
-    if (!this.addMode) return; // ne créer des notes que si on est en addMode
-
-    if (!this.selectedPhoneme || !this.projectId) return;
+    if (!this.addMode || !this.selectedPhoneme || !this.projectId) return;
 
     const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
     let clickX = event.clientX - rect.left;
@@ -202,7 +200,12 @@ export class ProjectEditComponent implements OnInit {
       lyrics: this.selectedPhoneme,
       voicebank_id: "e2c87d46-a184-4431-aa72-eb6b66112c52",
       phoneme_id: phoneme.id,
-      order_index: this.notes.length
+      order_index: this.notes.length,
+      // ✅ calculer la position initiale pour le component
+      left: snappedStart / this.zoomFactor,
+      top: this.getNoteY(snappedPitch),
+      width: (this.timeStep * 2) / this.zoomFactor,
+      height: this.noteHeight
     };
 
     this.addNote(newNote);
@@ -251,7 +254,6 @@ export class ProjectEditComponent implements OnInit {
     });
   }
 
-
   getNoteLeft(startTime: number) { return startTime / this.zoomFactor; }
   getNoteWidth(duration: number) { return duration / this.zoomFactor; }
   getNoteY(pitch: number): number {
@@ -292,39 +294,37 @@ export class ProjectEditComponent implements OnInit {
       });
   }
 
-updateProject() {
-  const token = localStorage.getItem('token');
-  if (!token || !this.projectId) return;
+  updateProject() {
+    const token = localStorage.getItem('token');
+    if (!token || !this.projectId) return;
 
-  const projectData: any = {
-    description: this.description,
-    tempo: this.tempo,
-    key_signature: this.key_signature,
-    duration: this.durationEdit // <-- valeur temporaire sauvegardée
-  };
+    const projectData: any = {
+      description: this.description,
+      tempo: this.tempo,
+      key_signature: this.key_signature,
+      duration: this.durationEdit // <-- valeur temporaire sauvegardée
+    };
 
-  this.http.patch(`http://127.0.0.1:8055/items/projects/${this.projectId}`, projectData, {
-    headers: { Authorization: `Bearer ${token}` }
-  }).subscribe({
-    next: () => {
-      this.duration = this.durationEdit; // mettre à jour la valeur réelle
-      this.updateTimelineWidth();         // recalculer la largeur
-      this.message = 'Projet mis à jour avec succès !';
-      this.editMode = false;
-    },
-    error: (err) => {
-      console.error(err);
-      this.message = 'Erreur lors de la mise à jour';
-    }
-  });
-}
+    this.http.patch(`http://127.0.0.1:8055/items/projects/${this.projectId}`, projectData, {
+      headers: { Authorization: `Bearer ${token}` }
+    }).subscribe({
+      next: () => {
+        this.duration = this.durationEdit; // mettre à jour la valeur réelle
+        this.updateTimelineWidth();         // recalculer la largeur
+        this.message = 'Projet mis à jour avec succès !';
+        this.editMode = false;
+      },
+      error: (err) => {
+        console.error(err);
+        this.message = 'Erreur lors de la mise à jour';
+      }
+    });
+  }
 
-
-
-cancelEdit() {
-  this.editMode = false;
-  this.durationEdit = this.duration; // remettre la valeur réelle
-}
+  cancelEdit() {
+    this.editMode = false;
+    this.durationEdit = this.duration; // remettre la valeur réelle
+  }
 
   back() {
     this.router.navigate(['/projects']);

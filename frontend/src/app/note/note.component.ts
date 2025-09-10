@@ -62,53 +62,46 @@ export class NoteComponent {
   private resizeThreshold = 5; // px pour détecter le resize
   private initialTop = 0;
 
+  private offsetX = 0;
+  private offsetY = 0;
 
   onMouseDown(event: MouseEvent) {
-    if (this.deleteMode) {
+  if (this.deleteMode) {
     this.noteDeleted.emit(this.note);
     return;
   }
-  if (!this.moveMode) return; // drag uniquement si moveMode
+  if (!this.moveMode) return;
 
-    this.initialTop = this.top;
+  event.preventDefault();
 
+  // Décalage entre la souris et le coin supérieur gauche de la note
+  this.offsetX = event.clientX - this.left;
+  this.offsetY = event.clientY - this.top;
 
-    event.preventDefault();
-    this.startX = event.clientX;
-    this.startY = event.clientY;
+  // Vérifie si resize (clic sur bord droit)
+  this.resizing = event.offsetX >= this.width - this.resizeThreshold;
+  this.dragging = !this.resizing;
 
-    // Détecte si on clique sur le bord droit pour resize
-    if (event.offsetX >= this.width - this.resizeThreshold) {
-      this.resizing = true;
-    } else {
-      this.dragging = true;
-    }
+  const mouseMoveHandler = (e: MouseEvent) => this.onMouseMove(e);
+  const mouseUpHandler = (e: MouseEvent) => this.onMouseUp(e, mouseMoveHandler, mouseUpHandler);
 
-    const mouseMoveHandler = (e: MouseEvent) => this.onMouseMove(e);
-    const mouseUpHandler = (e: MouseEvent) => this.onMouseUp(e, mouseMoveHandler, mouseUpHandler);
-
-    window.addEventListener('mousemove', mouseMoveHandler);
-    window.addEventListener('mouseup', mouseUpHandler);
+  window.addEventListener('mousemove', mouseMoveHandler);
+  window.addEventListener('mouseup', mouseUpHandler);
   }
 
-onMouseMove(event: MouseEvent) {
-  const deltaX = event.clientX - this.startX;
+  onMouseMove(event: MouseEvent) {
+    if (this.dragging) {
+      const containerLeft = (event.target as HTMLElement).closest('.timeline')?.getBoundingClientRect()?.left || 0;
+      const containerTop = (event.target as HTMLElement).closest('.timeline')?.getBoundingClientRect()?.top || 0;
 
-  if (this.dragging) {
-    // Horizontal (libre)
-    this.left += deltaX;
-    const LEFT_PADDING = 50;
-    if (this.left < LEFT_PADDING) this.left = LEFT_PADDING;
-    if (this.left + this.width > this.timelineWidth) this.left = this.timelineWidth - this.width;
+      let newLeft = event.clientX - containerLeft - this.offsetX;
+      let newTop = event.clientY - containerTop - this.offsetY;
 
-    // Vertical (selon position de la souris)
-    const containerTop = (event.target as HTMLElement).closest('.timeline')?.getBoundingClientRect()?.top || 0;
-    const absoluteMouseY = event.clientY - containerTop;
+      // Snap vertical pour le pitch
+      const snappedPitchIndex = Math.floor(newTop / this.height);
+      newTop = snappedPitchIndex * this.height;
 
-    const snappedPitchIndex = Math.floor(absoluteMouseY / this.height);
-    const newTop = snappedPitchIndex * this.height;
-
-    if (newTop >= 0 && newTop + this.height <= this.timelineHeight) {
+      this.left = newLeft;
       this.top = newTop;
 
       this.noteMoved.emit({
@@ -118,26 +111,18 @@ onMouseMove(event: MouseEvent) {
       });
     }
 
-    // Mise à jour du start pour horizontal
-    this.startX = event.clientX;
+    if (this.resizing) {
+      const deltaX = event.clientX - (this.left + this.width);
+      let newWidth = this.width + deltaX;
+      if (newWidth < 10) newWidth = 10;
+      this.width = newWidth;
+
+      this.noteResized.emit({
+        note: this.note,
+        newDuration: this.width * this.zoomFactor
+      });
+    }
   }
-
-  if (this.resizing) {
-    let newWidth = this.width + deltaX;
-    if (newWidth < 10) newWidth = 10;
-    this.width = newWidth;
-    this.startX = event.clientX;
-
-    this.noteResized.emit({
-      note: this.note,
-      newDuration: this.width * this.zoomFactor
-    });
-  }
-}
-
-
-
-
 
   onMouseUp(event: MouseEvent, moveHandler: any, upHandler: any) {
     this.dragging = false;
