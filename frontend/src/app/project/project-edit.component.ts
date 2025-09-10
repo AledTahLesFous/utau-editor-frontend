@@ -50,39 +50,51 @@ export class ProjectEditComponent implements OnInit {
     private router: Router
   ) {}
 
-  ngOnInit() {
-    this.isLoggedIn = !!localStorage.getItem('token');
-    const token = localStorage.getItem('token');
-    if (!token) return;
+ngOnInit() {
+  this.isLoggedIn = !!localStorage.getItem('token');
+  const token = localStorage.getItem('token');
+  if (!token) return;
 
-    const projectName = this.route.snapshot.paramMap.get('name');
-    if (!projectName) return;
+  const projectName = this.route.snapshot.paramMap.get('name');
+  if (!projectName) return;
 
-    this.title = projectName;
+  this.title = projectName;
 
-    // Récupérer le projet depuis Directus
-    this.http.get(`http://127.0.0.1:8055/items/projects?filter[title][_eq]=${projectName}`, {
-      headers: { Authorization: `Bearer ${token}` }
-    }).subscribe({
-      next: (res: any) => {
-        if (res.data && res.data.length > 0) {
-          const project = res.data[0];
-          this.projectId = project.id; // stocker l'ID pour l'update
-          this.description = project.description;
-          this.tempo = project.tempo;
-          this.key_signature = project.key_signature;
-          this.loadNotes(this.projectId);
-          this.fetchPhonemes();
-        } else {
-          this.message = 'Projet introuvable';
-        }
-      },
-      error: (err) => {
-        console.error(err);
-        this.message = 'Erreur lors de la récupération du projet';
+  // Récupérer le projet depuis Directus
+  this.http.get(`http://127.0.0.1:8055/items/projects?filter[title][_eq]=${projectName}`, {
+    headers: { Authorization: `Bearer ${token}` }
+  }).subscribe({
+    next: (res: any) => {
+      if (res.data && res.data.length > 0) {
+        const project = res.data[0];
+        this.projectId = project.id;
+        this.description = project.description;
+        this.tempo = project.tempo;
+        this.key_signature = project.key_signature;
+
+        // 🔹 Utiliser la durée du projet pour la largeur de la timeline
+          if (project.duration) {
+            console.log(project.duration)
+              // Convertir la durée en "minutes" si tu veux afficher la timeline par minute
+              // mais ici on va juste calculer la largeur en pixels directement depuis la durée en secondes
+              this.timelineWidth = project.duration * this.zoomFactor;
+            } else {
+              this.timelineWidth = 100; // fallback
+            }
+
+        this.loadNotes(this.projectId);
+        this.fetchPhonemes();
+      } else {
+        this.message = 'Projet introuvable';
       }
-    });
-  }
+    },
+    error: (err) => {
+      console.error(err);
+      this.message = 'Erreur lors de la récupération du projet';
+    }
+  });
+}
+
 
 updateTimelineWidth() {
   if (!this.notes || this.notes.length === 0) {
@@ -96,7 +108,7 @@ updateTimelineWidth() {
   );
 
   // Calculer la largeur totale en pixels
-  this.timelineWidth = (lastNote.start_time + lastNote.duration) / this.zoomFactor + 200; // marge
+this.timelineWidth = (lastNote.start_time + lastNote.duration) * this.zoomFactor + 200;
 }
 
 
@@ -230,29 +242,30 @@ addNote(newNote: any) {
   const token = localStorage.getItem('token');
   if (!token) return;
 
-  // Vérifie si une note existe déjà au même start_time et pitch
   const exists = this.notes.find(n =>
     n.start_time === newNote.start_time && n.pitch === newNote.pitch
   );
-  if (exists) return; // pas de doublon
+  if (exists) return;
 
   this.http.post(`http://127.0.0.1:8055/items/notes`, newNote, {
     headers: { Authorization: `Bearer ${token}` }
   }).subscribe({
     next: (res: any) => {
-      this.notes.push({
-        ...newNote,
-        id: res.data.id,
-        phoneme: { name: this.selectedPhoneme }
-      });
+      this.notes.push({ ...newNote, id: res.data.id, phoneme: { name: this.selectedPhoneme } });
+
+      // 🔹 Mettre à jour la timeline si la note dépasse la largeur actuelle
+      const noteEnd = newNote.start_time + newNote.duration;
+      const projectedWidth = noteEnd / this.zoomFactor + 200;
+      if (projectedWidth > this.timelineWidth) this.timelineWidth = projectedWidth;
     },
     error: err => console.error('Erreur ajout note:', err)
   });
 }
 
 
-  getNoteLeft(startTime: number) { return startTime / this.zoomFactor; }
-  getNoteWidth(duration: number) { return duration / this.zoomFactor; }
+
+getNoteLeft(startTime: number) { return startTime * this.zoomFactor; }
+getNoteWidth(duration: number) { return duration * this.zoomFactor; }
 getNoteY(pitch: number): number {
   // inverse Y pour que pitch haut soit en haut
   const index = this.highestPitch - pitch; // 71 → 0, 48 → 23

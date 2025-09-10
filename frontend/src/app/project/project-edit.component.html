@@ -77,7 +77,7 @@
   (click)="onTimelineClick($event)">
 
   <!-- Grid Background -->
-  <div
+<div
   class="absolute top-0 left-0 h-full pointer-events-none grid-background"
   [style.width.px]="timelineWidth"
   [style.height.px]="noteHeight * midiNotes.length">
@@ -115,6 +115,7 @@
   (noteResized)="onNoteResized($event)"
   (noteDeleted)="onNoteDeleted($event)"
 ></app-note>
+
 
   </div>
 </div>
