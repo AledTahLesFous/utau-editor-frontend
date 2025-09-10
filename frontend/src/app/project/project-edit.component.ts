@@ -82,6 +82,22 @@ export class ProjectEditComponent implements OnInit {
     });
   }
 
+  onNoteResized(event: { note: any, newDuration: number }) {
+  const { note, newDuration } = event;
+  note.duration = newDuration;
+
+  const token = localStorage.getItem('token');
+  if (!token) return;
+
+  this.http.patch(`http://127.0.0.1:8055/items/notes/${note.id}`, {
+    duration: newDuration
+  }, { headers: { Authorization: `Bearer ${token}` }}).subscribe({
+    next: () => console.log('Note duration mise à jour'),
+    error: err => console.error('Erreur mise à jour duration:', err)
+  });
+}
+
+
 snapStartTime(rawTime: number) {
   return Math.round(rawTime / this.timeStep) * this.timeStep;
 }
