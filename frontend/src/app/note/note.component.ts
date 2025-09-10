@@ -83,41 +83,42 @@ export class NoteComponent {
     window.addEventListener('mouseup', mouseUpHandler);
   }
 
-  onMouseMove(event: MouseEvent) {
-    const deltaX = event.clientX - this.startX;
-    const deltaY = event.clientY - this.startY;
+onMouseMove(event: MouseEvent) {
+  const deltaX = event.clientX - this.startX;
+  const deltaY = event.clientY - this.startY;
 
-    if (this.dragging) {
-      const newLeft = this.left + deltaX;
-      const newTop = this.top + deltaY;
+  if (this.dragging) {
+    // Déplacement libre horizontal
+    this.left += deltaX;
 
-      const snappedStart = Math.round(newLeft / 10) * 10;
-      const snappedPitch = Math.round(newTop / this.height);
+    // SNAP VERTICAL: alignement sur les lignes
+    const snappedPitchIndex = Math.round((this.top + deltaY) / this.height);
+    this.top = snappedPitchIndex * this.height;
 
-      this.left = newLeft;
-      this.top = newTop;
-      this.startX = event.clientX;
-      this.startY = event.clientY;
+    this.startX = event.clientX;
+    this.startY = event.clientY;
 
-      this.noteMoved.emit({
-        note: this.note,
-        newStart: snappedStart * this.zoomFactor,
-        newPitch: this.highestPitch - snappedPitch
-      });
-    }
-
-    if (this.resizing) {
-      let newWidth = this.width + deltaX;
-      if (newWidth < 10) newWidth = 10; // largeur minimale
-      this.width = newWidth;
-      this.startX = event.clientX;
-
-      this.noteResized.emit({
-        note: this.note,
-        newDuration: this.width * this.zoomFactor
-      });
-    }
+    this.noteMoved.emit({
+      note: this.note,
+      newStart: this.left * this.zoomFactor,       // horizontal libre
+      newPitch: this.highestPitch - snappedPitchIndex // vertical snap
+    });
   }
+
+  if (this.resizing) {
+    let newWidth = this.width + deltaX;
+    if (newWidth < 10) newWidth = 10;
+    this.width = newWidth;
+    this.startX = event.clientX;
+
+    this.noteResized.emit({
+      note: this.note,
+      newDuration: this.width * this.zoomFactor
+    });
+  }
+}
+
+
 
   onMouseUp(event: MouseEvent, moveHandler: any, upHandler: any) {
     this.dragging = false;

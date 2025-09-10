@@ -28,7 +28,7 @@ export class ProjectEditComponent implements OnInit {
   midiNotes = Array.from({ length: 24 }, (_, i) => 71 - i);
   readonly lowestPitch = 48;
   readonly highestPitch = 71;
-  readonly noteHeight = 20;
+  readonly noteHeight = 25;
   readonly timeStep = 50; // ms par bloc
   zoomFactor = 5;
   notes: any[] = [];
@@ -97,6 +97,13 @@ export class ProjectEditComponent implements OnInit {
   });
 }
 
+timeMarkers() {
+  const markers = [];
+  const timelineLength = 5000; // en ms, adapte selon ta timeline
+  const step = 500; // chaque 500ms
+  for (let t = 0; t <= timelineLength; t += step) markers.push(t);
+  return markers;
+}
 
 snapStartTime(rawTime: number) {
   return Math.round(rawTime / this.timeStep) * this.timeStep;
@@ -231,11 +238,12 @@ addNote(newNote: any) {
 
   getNoteLeft(startTime: number) { return startTime / this.zoomFactor; }
   getNoteWidth(duration: number) { return duration / this.zoomFactor; }
-  getNoteY(pitch: number): number {
-  // Inverse le Y pour que pitch haut soit en haut
-  const relativePitch = this.highestPitch - pitch;
-  return relativePitch * this.noteHeight;
+getNoteY(pitch: number): number {
+  // inverse Y pour que pitch haut soit en haut
+  const index = this.highestPitch - pitch; // 71 → 0, 48 → 23
+  return index * this.noteHeight;
 }
+
 
 fetchPhonemes() {
   this.http.get<any>('http://127.0.0.1:8055/items/phonemes')

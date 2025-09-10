@@ -82,38 +82,50 @@
 
 
     <!-- Container projet -->
+<!-- Timeline Container -->
+<div class="mt-12 relative overflow-x-auto overflow-y-hidden border border-gray-300 rounded-lg shadow bg-gray-50 dark:bg-gray-900 p-4"
+     [style.height.px]="noteHeight * midiNotes.length">
 
+  <!-- Grid Background -->
+  <div class="absolute inset-0 pointer-events-none grid-background"></div>
 
-  <div class="mt-12 relative overflow-x-auto border border-gray-300 rounded-lg shadow bg-white p-4">
-      <div class="absolute left-0 top-0 h-full z-10">
-  <div *ngFor="let n of midiNotes" [style.height.px]="noteHeight" class="text-xs text-gray-700">
-    {{ n }}
+  <!-- Time Markers -->
+  <div class="absolute top-0 left-0 right-0 flex h-6 z-20">
+    <div *ngFor="let t of timeMarkers()"
+         [style.left.px]="t * zoomFactor"
+         class="absolute text-xs text-gray-500 dark:text-gray-400 border-l border-gray-300 dark:border-gray-600 h-full flex items-start">
+      <span class="mt-1 px-1 bg-gray-50 dark:bg-gray-900">{{ t / 1000 | number:'1.0-2' }}s</span>
+    </div>
+  </div>
+
+  <!-- Pitch Labels -->
+  <div class="absolute left-0 top-0 h-full z-10">
+    <div *ngFor="let n of midiNotes; let i = index"
+         [style.height.px]="noteHeight"
+         class="text-xs text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700 flex items-center justify-start px-1">
+      {{ n }}
+    </div>
+  </div>
+
+  <!-- Notes -->
+  <div class="relative ml-10" [style.height.px]="noteHeight * midiNotes.length" style="min-width: 1000px;">
+    <app-note
+      *ngFor="let note of notes"
+      [note]="note"
+      [left]="getNoteLeft(note.start_time)"
+      [top]="getNoteY(note.pitch)"
+      [width]="getNoteWidth(note.duration)"
+      [height]="noteHeight"
+      [zoomFactor]="zoomFactor"
+      [highestPitch]="highestPitch"
+      [moveMode]="moveMode"
+      [deleteMode]="deleteMode"
+      (noteMoved)="onNoteMoved($event)"
+      (noteResized)="onNoteResized($event)"
+      (noteDeleted)="onNoteDeleted($event)"
+    ></app-note>
   </div>
 </div>
-
-<!-- project-edit.component.html -->
-<div class="timeline" (click)="onTimelineClick($event)" style="position: relative; height: 500px; width: 1000px; border: 1px solid #ccc;">
-<app-note
-  *ngFor="let note of notes"
-  [note]="note"
-  [left]="getNoteLeft(note.start_time)"
-  [top]="getNoteY(note.pitch)"
-  [width]="getNoteWidth(note.duration)"
-  [height]="noteHeight"
-  [zoomFactor]="zoomFactor"
-  [highestPitch]="highestPitch"
-  [moveMode]="moveMode"
-  [deleteMode]="deleteMode"
-  (noteMoved)="onNoteMoved($event)"
-  (noteResized)="onNoteResized($event)"
-  (noteDeleted)="onNoteDeleted($event)"
-></app-note>
-
-
-
-
-</div>
-
 
 <!-- Choix du phoneme -->
 <div class="flex flex-col items-center gap-2">
@@ -126,8 +138,6 @@
       {{ phoneme.name }}
     </option>
   </select>
-</div>
-
 </div>
 <div class="mt-6 flex gap-4 justify-center">
   <button

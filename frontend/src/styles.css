@@ -74,8 +74,42 @@
   animation: slide-out 0.5s ease forwards;
 }
 
+/* Grille de timeline */
 .grid-background {
-  background-image: linear-gradient(to right, rgba(0,0,0,0.05) 1px, transparent 1px),
-                    linear-gradient(to bottom, rgba(0,0,0,0.05) 1px, transparent 1px);
-  background-size: 20px 20px;
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 50px 20px; /* 50px = 1 beat, 20px = hauteur note */
+}
+
+/* Note hover et style */
+.note {
+  position: absolute;
+  background-color: #6b21a8;
+  border-radius: 4px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  transition: transform 0.1s, box-shadow 0.2s;
+  cursor: grab;
+}
+.note:hover {
+  transform: scaleY(1.1);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+.note.dragging {
+  opacity: 0.8;
+  cursor: grabbing;
+  border: 1px dashed white;
+}
+
+.note.resizing {
+  cursor: ew-resize;
+}
+
+/* Repères de temps */
+.timeline span {
+  font-size: 10px;
+  color: #555;
+  background-color: rgba(255,255,255,0.7);
+  border-radius: 2px;
+  padding: 0 2px;
 }
