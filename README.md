@@ -1,5 +1,6 @@
 ## A Faire
 
+ENLEVER CE PTN DE 15 MIN REFRESH DE MERDE
 
 Prochaine étape :
 - Faire script parsing .wav en romanji
