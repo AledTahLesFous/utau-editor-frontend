@@ -79,7 +79,8 @@
   background-image:
     linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-  background-size: 50px 20px; /* 50px = 1 beat, 20px = hauteur note */
+  background-size: 50px 25px; /* 50px = 1 beat, 20px = hauteur note */
+  box-sizing: border-box;
 }
 
 /* Note hover et style */
@@ -90,6 +91,8 @@
   box-shadow: 0 2px 6px rgba(0,0,0,0.2);
   transition: transform 0.1s, box-shadow 0.2s;
   cursor: grab;
+    box-sizing: border-box;
+
 }
 .note:hover {
   transform: scaleY(1.1);
@@ -98,9 +101,7 @@
 .note.dragging {
   opacity: 0.8;
   cursor: grabbing;
-  border: 1px dashed white;
 }
-
 .note.resizing {
   cursor: ew-resize;
 }
