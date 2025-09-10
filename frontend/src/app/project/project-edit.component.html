@@ -103,8 +103,11 @@
   [zoomFactor]="zoomFactor"
   [highestPitch]="highestPitch"
   [moveMode]="moveMode"
+  [deleteMode]="deleteMode"
   (noteMoved)="onNoteMoved($event)"
+  (noteDeleted)="onNoteDeleted($event)"
 ></app-note>
+
 
 
 </div>
@@ -138,7 +141,6 @@
   >
     ▶️ Play
   </button>
-  <div class="flex justify-center gap-4 mb-4">
   <button
     (click)="toggleMoveMode()"
     [class.bg-gray-700]="moveMode"
@@ -147,8 +149,22 @@
   >
     {{ moveMode ? 'MOVE MODE' : 'ADD MODE' }}
   </button>
-</div>
 
+  <button
+    (click)="toggleDeleteMode()"
+    [class.bg-red-700]="deleteMode"
+    [class.bg-red-500]="!deleteMode"
+    class="px-4 py-2 rounded-xl font-semibold shadow text-white hover:scale-105 transition-all duration-300"
+  >
+    {{ deleteMode ? 'DELETE ON' : 'DELETE OFF' }}
+  </button>
+
+  <button
+    (click)="clearNotes()"
+    class="px-4 py-2 rounded-xl font-semibold shadow text-white bg-yellow-500 hover:scale-105 transition-all duration-300"
+  >
+    CLEAR
+  </button>
 </div>
 
 </div>

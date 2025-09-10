@@ -33,6 +33,7 @@ export class ProjectEditComponent implements OnInit {
   zoomFactor = 5;
   notes: any[] = [];
   moveMode: boolean = false;
+  deleteMode: boolean = false;
 
   phonemeBuffers: { [name: string]: AudioBuffer } = {};
   notePlayers: { name: string, startTime: number, pitch: number, velocity: number }[] = [];
@@ -95,6 +96,46 @@ snapPitch(rawPitch: number) {
 toggleMoveMode() {
   this.moveMode = !this.moveMode;
 }
+
+toggleDeleteMode() {
+  this.deleteMode = !this.deleteMode;
+}
+
+clearNotes() {
+  const token = localStorage.getItem('token');
+  if (!token) return;
+
+  // Supprimer toutes les notes côté serveur
+  const ids = this.notes.map(n => n.id);
+  if (!ids.length) return;
+
+  ids.forEach(id => {
+    this.http.delete(`http://127.0.0.1:8055/items/notes/${id}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    }).subscribe({
+      next: () => {},
+      error: err => console.error('Erreur suppression note:', err)
+    });
+  });
+
+  // Supprimer localement
+  this.notes = [];
+}
+
+onNoteDeleted(note: any) {
+  const token = localStorage.getItem('token');
+  if (!token) return;
+
+  this.http.delete(`http://127.0.0.1:8055/items/notes/${note.id}`, {
+    headers: { Authorization: `Bearer ${token}` }
+  }).subscribe({
+    next: () => {
+      this.notes = this.notes.filter(n => n.id !== note.id);
+    },
+    error: err => console.error('Erreur suppression note:', err)
+  });
+}
+
 onTimelineClick(event: MouseEvent) {
   if (this.moveMode) return; // en mode move, clic ne crée rien
 

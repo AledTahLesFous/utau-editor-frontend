@@ -42,7 +42,8 @@ export class NoteComponent {
   @Input() height: number = 20;
   @Input() zoomFactor: number = 1;
   @Input() highestPitch: number = 71;
-  @Input() moveMode: boolean = true; // par défaut vrai
+  @Input() deleteMode: boolean = false;
+  @Input() moveMode: boolean = true;
 
 
   @Output() noteMoved = new EventEmitter<{ note: any, newStart: number, newPitch: number }>();
@@ -52,18 +53,26 @@ export class NoteComponent {
   private startY = 0;
 
   onMouseDown(event: MouseEvent) {
-    if (!this.moveMode) return;
-    event.preventDefault();
-    this.dragging = true;
-    this.startX = event.clientX;
-    this.startY = event.clientY;
-
-    const mouseMoveHandler = (e: MouseEvent) => this.onMouseMove(e);
-    const mouseUpHandler = (e: MouseEvent) => this.onMouseUp(e, mouseMoveHandler, mouseUpHandler);
-
-    window.addEventListener('mousemove', mouseMoveHandler);
-    window.addEventListener('mouseup', mouseUpHandler);
+  if (this.deleteMode) {
+    this.noteDeleted.emit(this.note);
+    return;
   }
+
+  if (!this.moveMode) return;
+
+  event.preventDefault();
+  this.dragging = true;
+  this.startX = event.clientX;
+  this.startY = event.clientY;
+
+  const mouseMoveHandler = (e: MouseEvent) => this.onMouseMove(e);
+  const mouseUpHandler = (e: MouseEvent) => this.onMouseUp(e, mouseMoveHandler, mouseUpHandler);
+
+  window.addEventListener('mousemove', mouseMoveHandler);
+  window.addEventListener('mouseup', mouseUpHandler);
+}
+
+@Output() noteDeleted = new EventEmitter<any>();
 
   onMouseMove(event: MouseEvent) {
     if (!this.dragging) return;
