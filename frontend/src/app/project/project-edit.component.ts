@@ -32,7 +32,8 @@ export class ProjectEditComponent implements OnInit {
   readonly timeStep = 50; // ms par bloc
   zoomFactor = 5;
   notes: any[] = [];
-  moveMode: boolean = false;
+  moveMode: boolean = true; // déplacer les notes existantes
+  addMode: boolean = false; // ajouter des notes sur la timeline
   deleteMode: boolean = false;
 
   phonemeBuffers: { [name: string]: AudioBuffer } = {};
@@ -118,6 +119,7 @@ snapPitch(rawPitch: number) {
 
 toggleMoveMode() {
   this.moveMode = !this.moveMode;
+  this.addMode = !this.moveMode; // inverse automatiquement
 }
 
 toggleDeleteMode() {
@@ -160,7 +162,7 @@ onNoteDeleted(note: any) {
 }
 
 onTimelineClick(event: MouseEvent) {
-  if (this.moveMode) return; // en mode move, clic ne crée rien
+  if (!this.addMode) return; // ne créer des notes que si on est en addMode
 
   if (!this.selectedPhoneme || !this.projectId) return;
 

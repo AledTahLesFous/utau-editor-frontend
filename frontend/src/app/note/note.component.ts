@@ -48,6 +48,7 @@ export class NoteComponent {
   @Input() deleteMode: boolean = false;
   @Input() moveMode: boolean = true;
 
+
   @Output() noteMoved = new EventEmitter<{ note: any, newStart: number, newPitch: number }>();
   @Output() noteResized = new EventEmitter<{ note: any, newDuration: number }>();
   @Output() noteDeleted = new EventEmitter<any>();
@@ -60,10 +61,10 @@ export class NoteComponent {
 
   onMouseDown(event: MouseEvent) {
     if (this.deleteMode) {
-      this.noteDeleted.emit(this.note);
-      return;
-    }
-    if (!this.moveMode) return;
+    this.noteDeleted.emit(this.note);
+    return;
+  }
+  if (!this.moveMode) return; // drag uniquement si moveMode
 
     event.preventDefault();
     this.startX = event.clientX;
