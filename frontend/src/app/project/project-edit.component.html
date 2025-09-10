@@ -83,9 +83,10 @@
 
     <!-- Container projet -->
 <!-- Timeline Container -->
-<div class="mt-12 relative overflow-x-auto overflow-y-hidden border border-gray-300 rounded-lg shadow bg-gray-50 dark:bg-gray-900 p-4"
-     [style.height.px]="noteHeight * midiNotes.length"
-     (click)="onTimelineClick($event)">
+<div
+  class="mt-12 relative overflow-x-auto overflow-y-hidden border border-gray-300 rounded-lg shadow bg-gray-50 dark:bg-gray-900 p-4"
+  [style.height.px]="noteHeight * midiNotes.length"
+  (click)="onTimelineClick($event)">
 
   <!-- Grid Background -->
   <div class="absolute inset-0 pointer-events-none grid-background"></div>
@@ -109,7 +110,7 @@
   </div>
 
   <!-- Notes -->
-  <div class="relative ml-10" [style.height.px]="noteHeight * midiNotes.length" style="min-width: 1000px;">
+  <div [style.height.px]="noteHeight * midiNotes.length" style="min-width: 1000px;">
     <app-note
       *ngFor="let note of notes"
       [note]="note"
