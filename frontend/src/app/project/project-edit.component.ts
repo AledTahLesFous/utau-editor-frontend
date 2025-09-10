@@ -25,7 +25,7 @@ export class ProjectEditComponent implements OnInit {
 
   projectId = '';
 
-  midiNotes = Array.from({ length: 24 }, (_, i) => 71 - i);
+  midiNotes = Array.from({ length: 25 }, (_, i) => 72 - i);
   readonly lowestPitch = 48;
   readonly highestPitch = 71;
   readonly noteHeight = 25;
