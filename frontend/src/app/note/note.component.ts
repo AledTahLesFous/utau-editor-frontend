@@ -42,7 +42,7 @@ export class NoteComponent {
   @Input() left: number = 0;
   @Input() top: number = 0;
   @Input() width: number = 500;
-  @Input() height: number = 20;
+  @Input() height: number = 25;
   @Input() zoomFactor: number = 1;
   @Input() highestPitch: number = 71;
   @Input() deleteMode: boolean = false;
@@ -60,6 +60,8 @@ export class NoteComponent {
   private startX = 0;
   private startY = 0;
   private resizeThreshold = 5; // px pour détecter le resize
+  private initialTop = 0;
+
 
   onMouseDown(event: MouseEvent) {
     if (this.deleteMode) {
@@ -67,6 +69,9 @@ export class NoteComponent {
     return;
   }
   if (!this.moveMode) return; // drag uniquement si moveMode
+
+    this.initialTop = this.top;
+
 
     event.preventDefault();
     this.startX = event.clientX;
@@ -88,32 +93,33 @@ export class NoteComponent {
 
 onMouseMove(event: MouseEvent) {
   const deltaX = event.clientX - this.startX;
-  const deltaY = event.clientY - this.startY;
 
   if (this.dragging) {
-  // Horizontal
-  this.left += deltaX;
-  const LEFT_PADDING = 50;
-if (this.left < LEFT_PADDING) this.left = LEFT_PADDING;
+    // Horizontal (libre)
+    this.left += deltaX;
+    const LEFT_PADDING = 50;
+    if (this.left < LEFT_PADDING) this.left = LEFT_PADDING;
+    if (this.left + this.width > this.timelineWidth) this.left = this.timelineWidth - this.width;
 
-  if (this.left + this.width > this.timelineWidth) this.left = this.timelineWidth - this.width;
+    // Vertical (selon position de la souris)
+    const containerTop = (event.target as HTMLElement).closest('.timeline')?.getBoundingClientRect()?.top || 0;
+    const absoluteMouseY = event.clientY - containerTop;
 
-  // Vertical (snap)
-  const snappedPitchIndex = Math.round((this.top + deltaY) / this.height);
-  let newTop = snappedPitchIndex * this.height;
-  if (newTop < 0) newTop = 0;
-  if (newTop + this.height > this.timelineHeight) newTop = this.timelineHeight - this.height;
-  this.top = newTop;
+    const snappedPitchIndex = Math.floor(absoluteMouseY / this.height);
+    const newTop = snappedPitchIndex * this.height;
 
-  this.startX = event.clientX;
-  this.startY = event.clientY;
+    if (newTop >= 0 && newTop + this.height <= this.timelineHeight) {
+      this.top = newTop;
 
-  this.noteMoved.emit({
-    note: this.note,
-    newStart: this.left * this.zoomFactor,
-    newPitch: this.highestPitch - snappedPitchIndex
-  });
+      this.noteMoved.emit({
+        note: this.note,
+        newStart: this.left * this.zoomFactor,
+        newPitch: this.highestPitch - snappedPitchIndex
+      });
+    }
 
+    // Mise à jour du start pour horizontal
+    this.startX = event.clientX;
   }
 
   if (this.resizing) {
@@ -128,6 +134,8 @@ if (this.left < LEFT_PADDING) this.left = LEFT_PADDING;
     });
   }
 }
+
+
 
 
 

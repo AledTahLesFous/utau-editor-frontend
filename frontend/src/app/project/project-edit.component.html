@@ -110,7 +110,7 @@
   </div>
 
   <!-- Notes -->
-  <div [style.height.px]="noteHeight * midiNotes.length" style="min-width: 1000px;">
+  <div class="timeline" [style.height.px]="noteHeight * midiNotes.length" style="min-width: 1000px;">
 <app-note
   *ngFor="let note of notes"
   [note]="note"
