@@ -90,24 +90,25 @@
     {{ n }}
   </div>
 </div>
-<div
-  class="relative grid-background overflow-hidden"
-  style="height: 500px; width: 3000px; position: relative;"
-  (click)="onTimelineClick($event)"
->
-  <div
-    *ngFor="let note of notes"
-    class="absolute text-xs font-semibold text-white bg-blue-500 rounded shadow"
-    [style.top.px]="getNoteY(note.pitch)"
-    [style.left.px]="getNoteLeft(note.start_time)"
-    [style.width.px]="getNoteWidth(note.duration)"
-    [style.height.px]="noteHeight"
-    [attr.data-pitch]="note.pitch"
-    [attr.data-start]="note.start_time"
-  >
-    {{ note.lyrics }}
-  </div>
+
+<!-- project-edit.component.html -->
+<div class="timeline" (click)="onTimelineClick($event)" style="position: relative; height: 500px; width: 1000px; border: 1px solid #ccc;">
+<app-note
+  *ngFor="let note of notes"
+  [note]="note"
+  [left]="getNoteLeft(note.start_time)"
+  [top]="getNoteY(note.pitch)"
+  [width]="getNoteWidth(note.duration)"
+  [height]="noteHeight"
+  [zoomFactor]="zoomFactor"
+  [highestPitch]="highestPitch"
+  [moveMode]="moveMode"
+  (noteMoved)="onNoteMoved($event)"
+></app-note>
+
+
 </div>
+
 
 <!-- Choix du phoneme -->
 <div class="flex flex-col items-center gap-2">
@@ -137,6 +138,17 @@
   >
     ▶️ Play
   </button>
+  <div class="flex justify-center gap-4 mb-4">
+  <button
+    (click)="toggleMoveMode()"
+    [class.bg-gray-700]="moveMode"
+    [class.bg-gray-500]="!moveMode"
+    class="px-4 py-2 rounded-xl font-semibold shadow text-white hover:scale-105 transition-all duration-300"
+  >
+    {{ moveMode ? 'MOVE MODE' : 'ADD MODE' }}
+  </button>
+</div>
+
 </div>
 
 </div>

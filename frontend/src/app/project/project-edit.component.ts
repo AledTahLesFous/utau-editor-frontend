@@ -4,12 +4,13 @@ import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AppHeaderComponent} from '../shared/app-header.component'
+import { NoteComponent } from "../note/note.component"
 import * as Tone from 'tone';
 
 @Component({
   selector: 'app-project-edit',
   standalone: true,
-  imports: [CommonModule, FormsModule, AppHeaderComponent],
+  imports: [CommonModule, FormsModule, AppHeaderComponent, NoteComponent],
   templateUrl: './project-edit.component.html',
 
 })
@@ -28,8 +29,10 @@ export class ProjectEditComponent implements OnInit {
   readonly lowestPitch = 48;
   readonly highestPitch = 71;
   readonly noteHeight = 20;
+  readonly timeStep = 50; // ms par bloc
   zoomFactor = 5;
   notes: any[] = [];
+  moveMode: boolean = false;
 
   phonemeBuffers: { [name: string]: AudioBuffer } = {};
   notePlayers: { name: string, startTime: number, pitch: number, velocity: number }[] = [];
@@ -78,38 +81,82 @@ export class ProjectEditComponent implements OnInit {
     });
   }
 
+snapStartTime(rawTime: number) {
+  return Math.round(rawTime / this.timeStep) * this.timeStep;
+}
+
+snapPitch(rawPitch: number) {
+  if (rawPitch < this.lowestPitch) return this.lowestPitch;
+  if (rawPitch > this.highestPitch) return this.highestPitch;
+  return rawPitch;
+}
+
+
+toggleMoveMode() {
+  this.moveMode = !this.moveMode;
+}
 onTimelineClick(event: MouseEvent) {
+  if (this.moveMode) return; // en mode move, clic ne crée rien
+
   if (!this.selectedPhoneme || !this.projectId) return;
 
-  const gridElement = event.currentTarget as HTMLElement;
-  const rect = gridElement.getBoundingClientRect();
+  const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+  let clickX = event.clientX - rect.left;
+  let clickY = event.clientY - rect.top;
 
-  const clickX = event.clientX - rect.left;
-  const clickY = event.clientY - rect.top;
+  let rawStart = clickX * this.zoomFactor;
+  let snappedStart = this.snapStartTime(rawStart);
 
-  const clickedPitch = this.highestPitch - Math.floor(clickY / this.noteHeight);
-  if (clickedPitch < this.lowestPitch || clickedPitch > this.highestPitch) return;
-
-  const startTime = Math.floor(clickX * this.zoomFactor);
+  let clickedPitch = this.highestPitch - Math.floor(clickY / this.noteHeight);
+  let snappedPitch = this.snapPitch(clickedPitch);
 
   const phoneme = this.phonemes.find(p => p.name === this.selectedPhoneme);
-  if (!phoneme) {
-    console.error('Phoneme sélectionné introuvable');
-    return;
-  }
+  if (!phoneme) return;
 
   const newNote = {
     project_id: this.projectId,
-    start_time: startTime,
-    duration: 500,
-    pitch: clickedPitch,
+    start_time: snappedStart,
+    duration: this.timeStep * 2,
+    pitch: snappedPitch,
     lyrics: this.selectedPhoneme,
     voicebank_id: "e2c87d46-a184-4431-aa72-eb6b66112c52",
     phoneme_id: phoneme.id,
     order_index: this.notes.length
   };
 
+  this.addNote(newNote);
+}
+
+
+
+onNoteMoved(event: { note: any, newStart: number, newPitch: number }) {
+  const { note, newStart, newPitch } = event;
+  note.start_time = newStart;
+  note.pitch = newPitch;
+
   const token = localStorage.getItem('token');
+  if (!token) return;
+
+  this.http.patch(`http://127.0.0.1:8055/items/notes/${note.id}`, {
+    start_time: newStart,
+    pitch: newPitch
+  }, { headers: { Authorization: `Bearer ${token}` }})
+  .subscribe({
+    next: () => console.log('Note mise à jour'),
+    error: err => console.error('Erreur mise à jour note:', err)
+  });
+}
+
+addNote(newNote: any) {
+  const token = localStorage.getItem('token');
+  if (!token) return;
+
+  // Vérifie si une note existe déjà au même start_time et pitch
+  const exists = this.notes.find(n =>
+    n.start_time === newNote.start_time && n.pitch === newNote.pitch
+  );
+  if (exists) return; // pas de doublon
+
   this.http.post(`http://127.0.0.1:8055/items/notes`, newNote, {
     headers: { Authorization: `Bearer ${token}` }
   }).subscribe({
@@ -120,13 +167,9 @@ onTimelineClick(event: MouseEvent) {
         phoneme: { name: this.selectedPhoneme }
       });
     },
-    error: err => {
-      console.error('Erreur ajout note:', err);
-      alert('Erreur ajout note: ' + JSON.stringify(err.error));
-    }
+    error: err => console.error('Erreur ajout note:', err)
   });
 }
-
 
 
   getNoteLeft(startTime: number) { return startTime / this.zoomFactor; }
