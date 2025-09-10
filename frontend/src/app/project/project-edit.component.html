@@ -111,21 +111,24 @@
 
   <!-- Notes -->
   <div [style.height.px]="noteHeight * midiNotes.length" style="min-width: 1000px;">
-    <app-note
-      *ngFor="let note of notes"
-      [note]="note"
-      [left]="getNoteLeft(note.start_time)"
-      [top]="getNoteY(note.pitch)"
-      [width]="getNoteWidth(note.duration)"
-      [height]="noteHeight"
-      [zoomFactor]="zoomFactor"
-      [highestPitch]="highestPitch"
-      [moveMode]="moveMode"
-      [deleteMode]="deleteMode"
-      (noteMoved)="onNoteMoved($event)"
-      (noteResized)="onNoteResized($event)"
-      (noteDeleted)="onNoteDeleted($event)"
-    ></app-note>
+<app-note
+  *ngFor="let note of notes"
+  [note]="note"
+  [left]="getNoteLeft(note.start_time)"
+  [top]="getNoteY(note.pitch)"
+  [width]="getNoteWidth(note.duration)"
+  [height]="noteHeight"
+  [zoomFactor]="zoomFactor"
+  [highestPitch]="highestPitch"
+  [moveMode]="moveMode"
+  [deleteMode]="deleteMode"
+  [timelineWidth]="1000"
+  [timelineHeight]="noteHeight * midiNotes.length"
+  (noteMoved)="onNoteMoved($event)"
+  (noteResized)="onNoteResized($event)"
+  (noteDeleted)="onNoteDeleted($event)"
+></app-note>
+
   </div>
 </div>
 

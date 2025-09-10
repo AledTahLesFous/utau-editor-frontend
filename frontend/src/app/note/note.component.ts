@@ -47,6 +47,8 @@ export class NoteComponent {
   @Input() highestPitch: number = 71;
   @Input() deleteMode: boolean = false;
   @Input() moveMode: boolean = true;
+  @Input() timelineWidth: number = 0; // en px
+  @Input() timelineHeight: number = 60000; // en px
 
 
   @Output() noteMoved = new EventEmitter<{ note: any, newStart: number, newPitch: number }>();
@@ -89,21 +91,29 @@ onMouseMove(event: MouseEvent) {
   const deltaY = event.clientY - this.startY;
 
   if (this.dragging) {
-    // Déplacement libre horizontal
-    this.left += deltaX;
+  // Horizontal
+  this.left += deltaX;
+  const LEFT_PADDING = 50;
+if (this.left < LEFT_PADDING) this.left = LEFT_PADDING;
 
-    // SNAP VERTICAL: alignement sur les lignes
-    const snappedPitchIndex = Math.round((this.top + deltaY) / this.height);
-    this.top = snappedPitchIndex * this.height;
+  if (this.left + this.width > this.timelineWidth) this.left = this.timelineWidth - this.width;
 
-    this.startX = event.clientX;
-    this.startY = event.clientY;
+  // Vertical (snap)
+  const snappedPitchIndex = Math.round((this.top + deltaY) / this.height);
+  let newTop = snappedPitchIndex * this.height;
+  if (newTop < 0) newTop = 0;
+  if (newTop + this.height > this.timelineHeight) newTop = this.timelineHeight - this.height;
+  this.top = newTop;
 
-    this.noteMoved.emit({
-      note: this.note,
-      newStart: this.left * this.zoomFactor,       // horizontal libre
-      newPitch: this.highestPitch - snappedPitchIndex // vertical snap
-    });
+  this.startX = event.clientX;
+  this.startY = event.clientY;
+
+  this.noteMoved.emit({
+    note: this.note,
+    newStart: this.left * this.zoomFactor,
+    newPitch: this.highestPitch - snappedPitchIndex
+  });
+
   }
 
   if (this.resizing) {
