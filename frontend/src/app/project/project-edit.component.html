@@ -69,7 +69,7 @@
 
 
 
-    <!-- Container projet -->
+
 <!-- Timeline Container -->
 <div
   class="mt-12 relative overflow-x-auto overflow-y-hidden border border-gray-300 rounded-lg shadow bg-gray-50 dark:bg-gray-900 p-4"
@@ -77,7 +77,11 @@
   (click)="onTimelineClick($event)">
 
   <!-- Grid Background -->
-  <div class="absolute inset-0 pointer-events-none grid-background"></div>
+  <div
+  class="absolute top-0 left-0 h-full pointer-events-none grid-background"
+  [style.width.px]="timelineWidth"
+  [style.height.px]="noteHeight * midiNotes.length">
+</div>
 
 
   <!-- Pitch Labels -->
@@ -90,7 +94,10 @@
   </div>
 
   <!-- Notes -->
-  <div class="timeline" [style.height.px]="noteHeight * midiNotes.length" style="min-width: 10000px;">
+<div class="timeline"
+     [style.height.px]="noteHeight * midiNotes.length"
+     [style.minWidth.px]="timelineWidth">
+
 <app-note
   *ngFor="let note of notes"
   [note]="note"
@@ -102,7 +109,7 @@
   [highestPitch]="highestPitch"
   [moveMode]="moveMode"
   [deleteMode]="deleteMode"
-  [timelineWidth]="1000"
+  [timelineWidth]="timelineWidth"
   [timelineHeight]="noteHeight * midiNotes.length"
   (noteMoved)="onNoteMoved($event)"
   (noteResized)="onNoteResized($event)"

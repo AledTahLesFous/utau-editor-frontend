@@ -24,6 +24,7 @@ export class ProjectEditComponent implements OnInit {
   isLoggedIn = false;
 
   projectId = '';
+  timelineWidth: number = 1000;
 
   midiNotes = Array.from({ length: 24 }, (_, i) => 71 - i);
   readonly lowestPitch = 48;
@@ -82,6 +83,23 @@ export class ProjectEditComponent implements OnInit {
       }
     });
   }
+
+updateTimelineWidth() {
+  if (!this.notes || this.notes.length === 0) {
+    this.timelineWidth = 1000; // largeur minimale
+    return;
+  }
+
+  // Trouver la note qui finit le plus tard
+  const lastNote = this.notes.reduce((prev, curr) =>
+    (curr.start_time + curr.duration) > (prev.start_time + prev.duration) ? curr : prev
+  );
+
+  // Calculer la largeur totale en pixels
+  this.timelineWidth = (lastNote.start_time + lastNote.duration) / this.zoomFactor + 200; // marge
+}
+
+
 
   onNoteResized(event: { note: any, newDuration: number }) {
   const { note, newDuration } = event;
@@ -185,6 +203,7 @@ onTimelineClick(event: MouseEvent) {
   };
 
   this.addNote(newNote);
+  this.updateTimelineWidth();
 }
 
 
@@ -256,6 +275,7 @@ fetchPhonemes() {
       .subscribe({
         next: (res: any) => {
           this.notes = res.data || [];
+          this.updateTimelineWidth();
           if (!this.notes.length) return;
 
           const phonemeIds = Array.from(new Set(this.notes.map(n => n.phoneme_id)));

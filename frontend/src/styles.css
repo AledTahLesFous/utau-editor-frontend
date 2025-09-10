@@ -77,11 +77,14 @@
 /* Grille de timeline */
 .grid-background {
   background-image:
-    linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-  background-size: 50px 25px; /* 50px = 1 beat, 20px = hauteur note */
+    linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255,255,255,0.05) 1px, transparent 1px);
+  background-size: 50px 25px; /* 50px = 1 beat, 25px = hauteur note */
+  width: 100%; /* sera remplacé par width dynamique */
+  height: 100%;
   box-sizing: border-box;
 }
+
 
 /* Note hover et style */
 .note {

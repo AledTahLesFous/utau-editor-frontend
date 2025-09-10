@@ -47,7 +47,7 @@ export class NoteComponent {
   @Input() highestPitch: number = 71;
   @Input() deleteMode: boolean = false;
   @Input() moveMode: boolean = true;
-  @Input() timelineWidth: number = 0; // en px
+  @Input() timelineWidth: number = 5000000; // en px
   @Input() timelineHeight: number = 60000; // en px
 
 
