@@ -41,6 +41,19 @@
         class="w-full h-2 rounded-lg accent-emerald-400 cursor-pointer"
       />
     </div>
+<div class="flex flex-col items-center gap-2">
+  <label class="text-sm font-medium text-gray-900 dark:text-white">
+    Duration: {{ duration }}
+  </label>
+  <input
+    type="number"
+    [(ngModel)]="duration"
+    placeholder="Duration (ms)"
+    class="w-full p-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white/70 dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-400"
+    (change)="updateTimelineWidth()"
+  />
+</div>
+
 
     <input
       type="text"

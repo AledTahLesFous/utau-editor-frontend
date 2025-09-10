@@ -19,6 +19,7 @@ export class ProjectEditComponent implements OnInit {
   description = '';
   tempo = '';
   key_signature = '';
+  duration: number = 0; // durée du projet en ms ou unités
   message = '';
   editMode = false;
   isLoggedIn = false;
@@ -36,6 +37,7 @@ export class ProjectEditComponent implements OnInit {
   moveMode: boolean = true; // déplacer les notes existantes
   addMode: boolean = false; // ajouter des notes sur la timeline
   deleteMode: boolean = false;
+
 
   phonemeBuffers: { [name: string]: AudioBuffer } = {};
   notePlayers: { name: string, startTime: number, pitch: number, velocity: number }[] = [];
@@ -71,16 +73,15 @@ ngOnInit() {
         this.description = project.description;
         this.tempo = project.tempo;
         this.key_signature = project.key_signature;
+        this.duration = project.duration || 100; // fallback
+        this.updateTimelineWidth();
 
         // 🔹 Utiliser la durée du projet pour la largeur de la timeline
-          if (project.duration) {
-            console.log(project.duration)
-              // Convertir la durée en "minutes" si tu veux afficher la timeline par minute
-              // mais ici on va juste calculer la largeur en pixels directement depuis la durée en secondes
-              this.timelineWidth = project.duration * this.zoomFactor;
-            } else {
-              this.timelineWidth = 100; // fallback
-            }
+        if (project.duration) {
+          this.timelineWidth = project.duration / this.zoomFactor + 200; // marge
+        } else {
+          this.timelineWidth = 1000; // fallback
+        }
 
         this.loadNotes(this.projectId);
         this.fetchPhonemes();
@@ -97,18 +98,11 @@ ngOnInit() {
 
 
 updateTimelineWidth() {
-  if (!this.notes || this.notes.length === 0) {
-    this.timelineWidth = 1000; // largeur minimale
+  if (!this.duration || this.duration <= 0) {
+    this.timelineWidth = 1000; // fallback
     return;
   }
-
-  // Trouver la note qui finit le plus tard
-  const lastNote = this.notes.reduce((prev, curr) =>
-    (curr.start_time + curr.duration) > (prev.start_time + prev.duration) ? curr : prev
-  );
-
-  // Calculer la largeur totale en pixels
-this.timelineWidth = (lastNote.start_time + lastNote.duration) * this.zoomFactor + 200;
+  this.timelineWidth = this.duration * 10; // 1 unité de duration = 10px
 }
 
 
@@ -242,30 +236,29 @@ addNote(newNote: any) {
   const token = localStorage.getItem('token');
   if (!token) return;
 
+  // Vérifie si une note existe déjà au même start_time et pitch
   const exists = this.notes.find(n =>
     n.start_time === newNote.start_time && n.pitch === newNote.pitch
   );
-  if (exists) return;
+  if (exists) return; // pas de doublon
 
   this.http.post(`http://127.0.0.1:8055/items/notes`, newNote, {
     headers: { Authorization: `Bearer ${token}` }
   }).subscribe({
     next: (res: any) => {
-      this.notes.push({ ...newNote, id: res.data.id, phoneme: { name: this.selectedPhoneme } });
-
-      // 🔹 Mettre à jour la timeline si la note dépasse la largeur actuelle
-      const noteEnd = newNote.start_time + newNote.duration;
-      const projectedWidth = noteEnd / this.zoomFactor + 200;
-      if (projectedWidth > this.timelineWidth) this.timelineWidth = projectedWidth;
+      this.notes.push({
+        ...newNote,
+        id: res.data.id,
+        phoneme: { name: this.selectedPhoneme }
+      });
     },
     error: err => console.error('Erreur ajout note:', err)
   });
 }
 
 
-
-getNoteLeft(startTime: number) { return startTime * this.zoomFactor; }
-getNoteWidth(duration: number) { return duration * this.zoomFactor; }
+  getNoteLeft(startTime: number) { return startTime / this.zoomFactor; }
+  getNoteWidth(duration: number) { return duration / this.zoomFactor; }
 getNoteY(pitch: number): number {
   // inverse Y pour que pitch haut soit en haut
   const index = this.highestPitch - pitch; // 71 → 0, 48 → 23
