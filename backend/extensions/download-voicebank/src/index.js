@@ -51,8 +51,12 @@ export default function registerEndpoint(router, { services }) {
           if (fs.statSync(fullPath).isDirectory()) {
             const found = findFileByRomaji(fullPath, targetRomaji);
             if (found) return found;
-          } else if (safeName(file).startsWith(targetRomaji)) {
-            return fullPath;
+          } else {
+            // retire le _ au début et l'extension .wav
+            const name = path.basename(file, '.wav').replace(/^_/, '');
+            if (name.toLowerCase() === targetRomaji.toLowerCase()) {
+              return fullPath;
+            }
           }
         }
         return null;

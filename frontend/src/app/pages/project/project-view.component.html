@@ -1,0 +1,70 @@
+<app-header [isLoggedIn]="isLoggedIn"></app-header>
+
+<div class="relative w-full min-h-screen px-6 py-12 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800 text-center overflow-hidden">
+
+  <!-- Container projet -->
+  <div class="relative max-w-lg mx-auto mt-12 text-center font-sans p-6 rounded-3xl shadow-2xl bg-white/20 backdrop-blur-2xl border border-white/30">
+    <h2 class="text-3xl font-extrabold text-gray-900 dark:text-white mb-6">Projet: {{ title }}</h2>
+
+    <div *ngIf="message" class="bg-red-500 text-white px-4 py-2 rounded-xl shadow mb-4 animate-fade-in-out">
+      {{ message }}
+    </div>
+
+    <div *ngIf="!message" class="flex flex-col gap-4 bg-white/30 backdrop-blur-sm p-6 rounded-2xl shadow-md">
+      <p class="mb-2 text-gray-900 dark:text-white"><strong>Description:</strong> {{ description || '—' }}</p>
+      <p class="mb-2 text-gray-900 dark:text-white"><strong>Tempo:</strong> {{ tempo || 120 }}</p>
+      <p class="mb-4 text-gray-900 dark:text-white"><strong>Key signature:</strong> {{ key_signature || '—' }}</p>
+    </div>
+
+    <button
+      (click)="back()"
+      class="mt-6 px-4 py-2 rounded-xl font-semibold shadow text-white hover:scale-105 transition-all duration-300 bg-gradient-to-r from-gray-500 to-gray-600 text-sm"
+    >
+      Retour
+    </button>
+  </div>
+
+  <div class="mt-12 relative overflow-x-auto border border-gray-300 rounded-lg shadow bg-white p-4">
+      <div class="absolute left-0 top-0 h-full z-10">
+  <div *ngFor="let n of midiNotes" [style.height.px]="noteHeight" class="text-xs text-gray-700">
+    {{ n }}
+  </div>
+</div>
+<div
+  class="relative grid-background overflow-hidden"
+  style="height: 500px; width: 3000px; position: relative;"
+>
+  <div
+    *ngFor="let note of notes"
+    class="absolute text-xs font-semibold text-white bg-blue-500 rounded shadow"
+    [style.top.px]="getNoteY(note.pitch)"
+    [style.left.px]="getNoteLeft(note.start_time)"
+    [style.width.px]="getNoteWidth(note.duration)"
+    [style.height.px]="noteHeight"
+    [attr.data-pitch]="note.pitch"
+    [attr.data-start]="note.start_time"
+  >
+    {{ note.lyrics }}
+  </div>
+</div>
+
+
+
+</div>
+<div class="mt-6 flex gap-4 justify-center">
+  <button
+    (click)="initializeAudio()"
+    class="px-4 py-2 rounded-xl font-semibold shadow text-white hover:scale-105 transition-all duration-300 bg-blue-500 text-sm"
+  >
+    🔹 Initialiser Audio
+  </button>
+
+  <button
+    (click)="playAudio()"
+    class="px-4 py-2 rounded-xl font-semibold shadow text-white hover:scale-105 transition-all duration-300 bg-green-500 text-sm"
+  >
+    ▶️ Play
+  </button>
+</div>
+
+</div>

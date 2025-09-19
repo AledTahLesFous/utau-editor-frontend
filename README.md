@@ -1,9 +1,13 @@
 ## A Faire
 
+ENLEVER CE PTN DE 15 MIN REFRESH DE MERDE
 
 Prochaine étape :
 - Faire script parsing .wav en romanji
 - Creer interface pour ajouter notes **
+- Corriger Key Singature lors creation
+
+- MIDI from 48 to 71 (c3 do b4)
 ---
 ### 1. Pour création projet :
 - Faire juste le *required*

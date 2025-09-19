@@ -1,0 +1,192 @@
+<app-header [isLoggedIn]="isLoggedIn"></app-header>
+
+<div class="relative w-full min-h-screen px-6 py-12 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800 text-center overflow-hidden">
+
+<!-- Bouton flèche pour ouvrir/fermer le menu -->
+<div class="fixed top-1/3 right-0 z-50">
+  <button
+    (click)="editMode = !editMode"
+    class="bg-yellow-500 dark:bg-yellow-600 text-white p-2 rounded-l-xl shadow-lg hover:scale-105 transition-all duration-300"
+    [attr.aria-expanded]="editMode"
+  >
+    <span *ngIf="!editMode">▶</span>
+    <span *ngIf="editMode">◀</span>
+  </button>
+</div>
+
+<!-- Menu latéral -->
+<div
+  class="fixed top-0 right-0 h-full w-80 bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl shadow-2xl transition-transform duration-300 z-40 flex flex-col p-6"
+  [class.translate-x-full]="!editMode"
+  [class.translate-x-0]="editMode"
+>
+  <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Modifier Projet</h2>
+
+  <div class="flex flex-col gap-4">
+    <input
+      type="text"
+      [(ngModel)]="description"
+      placeholder="Description"
+      class="w-full p-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white/70 dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-400"
+    />
+
+    <div class="flex flex-col items-center gap-2">
+      <label class="text-sm font-medium text-gray-900 dark:text-white">Tempo: {{ tempo || 120 }}</label>
+      <input
+        type="range"
+        [(ngModel)]="tempo"
+        min="40"
+        max="300"
+        step="10"
+        class="w-full h-2 rounded-lg accent-emerald-400 cursor-pointer"
+      />
+    </div>
+<div class="flex flex-col items-center gap-2">
+  <label class="text-sm font-medium text-gray-900 dark:text-white">
+    Duration: {{ duration }}
+  </label>
+  <input
+    type="number"
+    [(ngModel)]="durationEdit"
+    placeholder="Duration (ms)"
+    class="w-full p-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white/70 dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-400"
+    (change)="updateTimelineWidth()"
+  />
+</div>
+
+
+    <input
+      type="text"
+      [(ngModel)]="key_signature"
+      placeholder="Key signature"
+      class="w-full p-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white/70 dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-400"
+    />
+
+    <div class="flex justify-center gap-3 mt-4">
+      <button
+        (click)="updateProject()"
+        class="px-4 py-2 rounded-xl font-semibold shadow text-white hover:scale-105 transition-all duration-300 bg-gradient-to-r from-green-500 to-emerald-500 text-sm"
+      >
+        Enregistrer
+      </button>
+
+      <button
+        (click)="cancelEdit()"
+        class="px-4 py-2 rounded-xl font-semibold shadow text-white hover:scale-105 transition-all duration-300 bg-gradient-to-r from-red-500 to-pink-500 text-sm"
+      >
+        Annuler
+      </button>
+    </div>
+  </div>
+</div>
+
+
+
+
+<!-- Timeline Container -->
+<div
+  class="mt-12 relative overflow-x-auto overflow-y-hidden border border-gray-300 rounded-lg shadow bg-gray-50 dark:bg-gray-900 p-4"
+  [style.height.px]="noteHeight * midiNotes.length + 20"
+  (click)="onTimelineClick($event)">
+
+  <!-- Grid Background -->
+<div
+  class="absolute top-0 left-0 h-full pointer-events-none grid-background"
+  [style.width.px]="timelineWidth"
+  [style.height.px]="noteHeight * midiNotes.length">
+</div>
+
+
+  <!-- Pitch Labels -->
+  <div class="absolute left-0 top-0 h-full z-10">
+    <div *ngFor="let n of midiNotes; let i = index"
+         [style.height.px]="noteHeight"
+         class="text-xs text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700 flex items-center justify-start px-1">
+      {{ n }}
+    </div>
+  </div>
+
+  <!-- Notes -->
+<div class="timeline"
+     [style.height.px]="noteHeight * midiNotes.length"
+     [style.minWidth.px]="timelineWidth">
+
+<app-note
+  *ngFor="let note of notes"
+  [note]="note"
+  [left]="getNoteLeft(note.start_time)"
+  [top]="getNoteY(note.pitch)"
+  [width]="getNoteWidth(note.duration)"
+  [height]="noteHeight"
+  [zoomFactor]="zoomFactor"
+  [highestPitch]="highestPitch"
+  [moveMode]="moveMode"
+  [deleteMode]="deleteMode"
+  [timelineWidth]="timelineWidth"
+  [timelineHeight]="noteHeight * midiNotes.length"
+  (noteMoved)="onNoteMoved($event)"
+  (noteResized)="onNoteResized($event)"
+  (noteDeleted)="onNoteDeleted($event)"
+></app-note>
+
+
+  </div>
+</div>
+
+<!-- Choix du phoneme -->
+<div class="mt-6 flex flex-wrap items-center justify-center gap-4">
+  <!-- Choix du phonème -->
+  <div class="flex flex-col">
+    <label class="text-sm font-medium text-gray-900 dark:text-white mb-1">Phonème</label>
+    <select
+      [(ngModel)]="selectedPhoneme"
+      class="px-3 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white/70 dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-400"
+    >
+      <option *ngFor="let phoneme of phonemes" [value]="phoneme.name">
+        {{ phoneme.name }}
+      </option>
+    </select>
+  </div>
+
+  <!-- Boutons -->
+  <button
+    (click)="initializeAudio()"
+    class="px-4 py-2 rounded-xl font-semibold shadow text-white hover:scale-105 transition-all duration-300 bg-blue-500 text-sm"
+  >
+    🔹 Initialiser Audio
+  </button>
+
+  <button
+    (click)="playAudio()"
+    class="px-4 py-2 rounded-xl font-semibold shadow text-white hover:scale-105 transition-all duration-300 bg-green-500 text-sm"
+  >
+    ▶️ Play
+  </button>
+
+  <button
+    (click)="toggleMoveMode()"
+    [class.bg-gray-700]="moveMode"
+    [class.bg-gray-500]="!moveMode"
+    class="px-4 py-2 rounded-xl font-semibold shadow text-white hover:scale-105 transition-all duration-300"
+  >
+    {{ moveMode ? 'MOVE MODE' : 'ADD MODE' }}
+  </button>
+
+  <button
+    (click)="toggleDeleteMode()"
+    [class.bg-red-700]="deleteMode"
+    [class.bg-red-500]="!deleteMode"
+    class="px-4 py-2 rounded-xl font-semibold shadow text-white hover:scale-105 transition-all duration-300"
+  >
+    {{ deleteMode ? 'DELETE ON' : 'DELETE OFF' }}
+  </button>
+
+  <button
+    (click)="clearNotes()"
+    class="px-4 py-2 rounded-xl font-semibold shadow text-white bg-yellow-500 hover:scale-105 transition-all duration-300"
+  >
+    CLEAR
+  </button>
+</div>
+
+</div>
