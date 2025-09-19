@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { AuthService } from '../auth/auth.service';
+import { AuthService } from '../../shared/services/auth.service';
 import { Router } from '@angular/router';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
@@ -26,7 +26,7 @@ export class AuthComponent implements OnInit {
   errorMessage = '';
   successMessage = '';
   isNotificationLeaving = false;
-  
+
   constructor(private authService: AuthService, private router: Router) {}
 
   ngOnInit(): void {

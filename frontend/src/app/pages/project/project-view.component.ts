@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AppHeaderComponent } from '../shared/app-header.component';
+import { AppHeaderComponent } from '../../shared/components/app-header.component';
 
 // Assure-toi d'installer Tone.js : npm install tone
 import * as Tone from 'tone';
