@@ -3,9 +3,9 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ProjectService } from '../services/project.service';
-import { AuthService } from '../auth/auth.service';
-import { AppHeaderComponent } from '../shared/app-header.component';
+import { ProjectService } from '../../shared/services/project.service';
+import { AuthService } from '../../shared/services/auth.service';
+import { AppHeaderComponent} from '../../shared/components/app-header.component'
 
 
 @Component({

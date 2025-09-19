@@ -1,12 +1,32 @@
+import 'zone.js';
 import { bootstrapApplication } from '@angular/platform-browser';
 import { provideHttpClient } from '@angular/common/http';
-import { provideRouter } from '@angular/router';
-import { routes } from './app/app.routes';
-import { AppComponent } from './app/app.component';
+import { provideRouter, Routes } from '@angular/router';
+import { App } from './app/app'; // composant racine standalone
 
-bootstrapApplication(AppComponent, {
+import { HomeComponent } from './app/pages/home/home.component';
+import { AuthComponent } from './app/pages/auth/auth.component';
+import { ProjectCreateComponent } from './app/pages/project/project-create.component';
+import { ProjectViewComponent } from './app/pages/project/project-view.component';
+import { ProjectListComponent } from './app/pages/project/project-list.component';
+import { ProjectEditComponent } from './app/pages/project/project-edit.component';
+
+import { AuthGuard } from './app/shared/guard/auth.guard';
+
+const routes: Routes = [
+  { path: '', component: HomeComponent },
+  { path: 'home', component: HomeComponent },
+  { path: 'auth', component: AuthComponent },
+  { path: 'project', component: ProjectCreateComponent, canActivate: [AuthGuard] },
+  { path: 'projects', component: ProjectListComponent, canActivate: [AuthGuard] },
+  { path: 'project/:name', component: ProjectEditComponent, canActivate: [AuthGuard] },
+  { path: 'project-view/:name', component: ProjectViewComponent },
+  { path: '**', redirectTo: '' }
+];
+
+bootstrapApplication(App, {
   providers: [
     provideHttpClient(),
     provideRouter(routes)
   ]
-}).catch(err => console.error(err));
+});

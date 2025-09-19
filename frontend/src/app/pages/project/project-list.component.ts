@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { AppHeaderComponent} from '../shared/app-header.component'
+import { AppHeaderComponent} from '../../shared/components/app-header.component'
 
 @Component({
   selector: 'app-project-list',

@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common'; // <-- important pour *ngIf
-import { AppHeaderComponent } from '../shared/app-header.component'; // <-- important pour *ngIf
-import { ProjectService } from '../services/project.service'; // adapte le chemin
-import { Projet } from '../models/project.model'; // adapte aussi
+import { AppHeaderComponent} from '../../shared/components/app-header.component'
+import { ProjectService } from '../../shared/services/project.service';
+import { Projet } from '../../shared/interfaces//project.interface'; // adapte aussi
 import { OnInit } from '@angular/core';
 
 @Component({
