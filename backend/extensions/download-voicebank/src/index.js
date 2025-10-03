@@ -14,6 +14,14 @@ function safeName(name) {
 }
 
 export default function registerEndpoint(router, { services }) {
+    console.log('✅ Download-voicebank endpoint loaded');
+
+    router.get('/download-voicebank', async (req, res) => {
+    console.log('🔹 /download-voicebank hit');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.send('Hello World');
+  });
+
   router.get('/:voicebankId/sample-romaji/:filename', async (req, res) => {
     const { voicebankId, filename } = req.params;
     const target = safeName(filename);
@@ -45,6 +53,8 @@ export default function registerEndpoint(router, { services }) {
 
       // Cherche le fichier correspondant au romaji
       function findFileByRomaji(dir, targetRomaji) {
+      console.log('🔍 Scanning directory:', dir);
+
         const files = fs.readdirSync(dir);
         for (const file of files) {
           const fullPath = path.join(dir, file);
@@ -54,7 +64,11 @@ export default function registerEndpoint(router, { services }) {
           } else {
             // retire le _ au début et l'extension .wav
             const name = path.basename(file, '.wav').replace(/^_/, '');
+                  console.log(`📝 Checking file: ${file} -> name cleaned: ${name}`);
+
             if (name.toLowerCase() === targetRomaji.toLowerCase()) {
+                      console.log(`✅ Found matching file: ${fullPath}`);
+
               return fullPath;
             }
           }
