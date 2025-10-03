@@ -89,40 +89,44 @@ export class NoteComponent {
   window.addEventListener('mouseup', mouseUpHandler);
   }
 
-  onMouseMove(event: MouseEvent) {
-    if (this.dragging) {
-      const containerLeft = (event.target as HTMLElement).closest('.timeline')?.getBoundingClientRect()?.left || 0;
-      const containerTop = (event.target as HTMLElement).closest('.timeline')?.getBoundingClientRect()?.top || 0;
+onMouseMove(event: MouseEvent) {
+  if (this.dragging) {
+    const timelineEl = (event.target as HTMLElement).closest('.timeline') as HTMLElement;
+    const containerRect = timelineEl?.getBoundingClientRect();
 
-      let newLeft = event.clientX - containerLeft - this.offsetX;
-      let newTop = event.clientY - containerTop - this.offsetY;
+    const scrollLeft = timelineEl?.scrollLeft || 0;
+    const scrollTop = timelineEl?.scrollTop || 0;
 
-      // Snap vertical pour le pitch
-      const snappedPitchIndex = Math.floor(newTop / this.height);
-      newTop = snappedPitchIndex * this.height;
+    let newLeft = event.clientX - containerRect.left + scrollLeft - this.offsetX;
+    let newTop = event.clientY - containerRect.top + scrollTop - this.offsetY;
 
-      this.left = newLeft;
-      this.top = newTop;
+    // Snap vertical pour le pitch
+    const snappedPitchIndex = Math.floor(newTop / this.height);
+    newTop = snappedPitchIndex * this.height;
 
-      this.noteMoved.emit({
-        note: this.note,
-        newStart: this.left * this.zoomFactor,
-        newPitch: this.highestPitch - snappedPitchIndex
-      });
-    }
+    this.left = newLeft;
+    this.top = newTop;
 
-    if (this.resizing) {
-      const deltaX = event.clientX - (this.left + this.width);
-      let newWidth = this.width + deltaX;
-      if (newWidth < 10) newWidth = 10;
-      this.width = newWidth;
-
-      this.noteResized.emit({
-        note: this.note,
-        newDuration: this.width * this.zoomFactor
-      });
-    }
+    this.noteMoved.emit({
+      note: this.note,
+      newStart: this.left * this.zoomFactor,
+      newPitch: this.highestPitch - snappedPitchIndex
+    });
   }
+
+  if (this.resizing) {
+    const deltaX = event.clientX - (this.left + this.width);
+    let newWidth = this.width + deltaX;
+    if (newWidth < 10) newWidth = 10;
+    this.width = newWidth;
+
+    this.noteResized.emit({
+      note: this.note,
+      newDuration: this.width * this.zoomFactor
+    });
+  }
+}
+
 
   onMouseUp(event: MouseEvent, moveHandler: any, upHandler: any) {
     this.dragging = false;
