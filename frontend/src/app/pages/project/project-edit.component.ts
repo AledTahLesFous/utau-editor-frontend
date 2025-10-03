@@ -158,7 +158,7 @@ export class ProjectEditComponent implements OnInit {
       duration: this.timeStep * 2,
       pitch: snappedPitch,
       lyrics: this.selectedPhoneme,
-      voicebank_id: "e2c87d46-a184-4431-aa72-eb6b66112c52",
+      voicebank_id: "dcf322c1-9c36-45cd-8e07-cb08f791c361",
       phoneme_id: phoneme.id,
       order_index: this.notes.length,
       left: snappedStart / this.zoomFactor,
