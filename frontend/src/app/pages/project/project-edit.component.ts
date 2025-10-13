@@ -146,11 +146,16 @@ export class ProjectEditComponent implements OnInit {
 onTimelineClick(event: MouseEvent) {
   if (!this.addMode || !this.selectedPhoneme || !this.projectId) return;
 
-  const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
-  const clickX = event.clientX - rect.left - this.labelsWidth;
-  const snappedLeftPx = Math.round(clickX / this.gridSize) * this.gridSize;
-  const clickY = event.clientY - rect.top;
+  const timelineEl = event.currentTarget as HTMLElement;
+  const rect = timelineEl.getBoundingClientRect();
 
+  // Ajouter scrollLeft pour tenir compte du scroll horizontal
+  const scrollLeft = timelineEl.scrollLeft;
+
+  const clickX = event.clientX - rect.left + scrollLeft - this.labelsWidth;
+  const snappedLeftPx = Math.round(clickX / this.gridSize) * this.gridSize;
+
+  const clickY = event.clientY - rect.top;
   const snappedPitchIndex = Math.floor(clickY / this.noteHeight);
   const snappedPitch = this.highestPitch - snappedPitchIndex;
 
