@@ -68,6 +68,10 @@ export class NoteComponent {
       this.noteDeleted.emit(this.note);
       return;
     }
+      if (event.button === 2) {
+    this.noteDeleted.emit(this.note);
+    return;
+  }
     if (!this.moveMode) return;
 
     event.preventDefault();
