@@ -6,6 +6,8 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
   template: `
     <div
       class="note"
+      [class.dragging]="dragging"
+      [class.resizing]="resizing"
       [style.left.px]="left"
       [style.top.px]="top"
       [style.width.px]="width"
@@ -41,19 +43,20 @@ export class NoteComponent {
   @Input() height = 25;
   @Input() zoomFactor = 1;
   @Input() highestPitch = 71;
+  @Input() lowestPitch = 0; // Ajouté pour éviter une erreur
   @Input() deleteMode = false;
   @Input() moveMode = true;
   @Input() timelineWidth = 5000;
   @Input() timelineHeight = 6000;
   @Input() gridSize = 50;
-  
+  @Input() labelsWidth = 0;
 
   @Output() noteMoved = new EventEmitter<{ note: any, newStart: number, newPitch: number }>();
   @Output() noteResized = new EventEmitter<{ note: any, newDuration: number }>();
   @Output() noteDeleted = new EventEmitter<any>();
 
-  private dragging = false;
-  private resizing = false;
+  dragging = false;
+  resizing = false;
   private startX = 0;
   private startY = 0;
   private offsetX = 0;
@@ -69,50 +72,49 @@ export class NoteComponent {
 
     event.preventDefault();
 
-    this.offsetX = event.clientX - this.left;
-    this.offsetY = event.clientY - this.top;
+    const timelineEl = (event.target as HTMLElement).closest('.timeline') as HTMLElement;
+    if (!timelineEl) return;
+
+    const rect = timelineEl.getBoundingClientRect();
+
+    this.offsetX = event.clientX - rect.left - this.left;
+    this.offsetY = event.clientY - rect.top - this.top;
 
     this.resizing = event.offsetX >= this.width - this.resizeThreshold;
     this.dragging = !this.resizing;
 
-    const moveHandler = (e: MouseEvent) => this.onMouseMove(e);
+    const moveHandler = (e: MouseEvent) => this.onMouseMove(e, timelineEl);
     const upHandler = (e: MouseEvent) => this.onMouseUp(e, moveHandler, upHandler);
 
     window.addEventListener('mousemove', moveHandler);
     window.addEventListener('mouseup', upHandler);
   }
 
-  onMouseMove(event: MouseEvent) {
-    const timelineEl = (event.target as HTMLElement).closest('.timeline') as HTMLElement;
-    const rect = timelineEl?.getBoundingClientRect();
-    const scrollLeft = timelineEl?.scrollLeft || 0;
-    const scrollTop = timelineEl?.scrollTop || 0;
+  onMouseMove(event: MouseEvent, timelineEl: HTMLElement) {
+    const rect = timelineEl.getBoundingClientRect();
+    
+    if (this.dragging) {
+      // Horizontal snapping
+      let rawLeft = event.clientX - rect.left + timelineEl.scrollLeft - this.offsetX - this.labelsWidth;
+      const snappedLeftPx = Math.round(rawLeft / this.gridSize) * this.gridSize;
+      this.left = Math.max(0, Math.min(snappedLeftPx, this.timelineWidth - this.width));
 
-    if (this.dragging && rect) {
-      let newLeft = event.clientX - rect.left + scrollLeft - this.offsetX;
-      let newTop = event.clientY - rect.top + scrollTop - this.offsetY;
+      // Vertical snapping
+      let pitchIndex = Math.round((event.clientY - rect.top + timelineEl.scrollTop - this.offsetY) / this.height);
+      pitchIndex = Math.max(0, Math.min(pitchIndex, this.highestPitch - this.lowestPitch));
+      this.top = pitchIndex * this.height;
 
-      // Snapping
-      newLeft = Math.round(newLeft / this.gridSize) * this.gridSize;
-      newTop = Math.round(newTop / this.height) * this.height;
-
-      this.left = newLeft;
-      this.top = newTop;
-
-      const snappedPitchIndex = Math.floor(newTop / this.height);
       this.noteMoved.emit({
         note: this.note,
         newStart: this.left * this.zoomFactor,
-        newPitch: this.highestPitch - snappedPitchIndex
+        newPitch: this.highestPitch - pitchIndex
       });
     }
 
     if (this.resizing) {
-      const deltaX = event.clientX - (this.left + this.width);
-      let newWidth = this.width + deltaX;
+      let newWidth = event.clientX - rect.left + timelineEl.scrollLeft - this.offsetX;
       newWidth = Math.round(newWidth / this.gridSize) * this.gridSize;
-      if (newWidth < this.gridSize) newWidth = this.gridSize;
-      this.width = newWidth;
+      this.width = Math.max(this.gridSize, newWidth);
 
       this.noteResized.emit({
         note: this.note,

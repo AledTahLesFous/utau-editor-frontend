@@ -82,34 +82,37 @@
 
   <!-- Timeline Container -->
   <div
-    class="mt-12 relative overflow-x-auto overflow-y-hidden border border-gray-300 rounded-lg shadow bg-gray-50 dark:bg-gray-900 p-4"
-    [style.height.px]="noteHeight * midiNotes.length + 20"
+    class="mt-12 relative overflow-x-auto overflow-y-hidden border border-gray-300 rounded-lg shadow bg-gray-50 dark:bg-gray-900 "
+    [style.height.px]="noteHeight * midiNotes.length + 16"
     (click)="onTimelineClick($event)"
   >
 
     <!-- Grid Background -->
-    <div
-      class="absolute top-0 left-0 h-full pointer-events-none grid-background"
-      [ngStyle]="{
-        'background-size': gridSize + 'px ' + noteHeight + 'px'
-      }"
-      [style.width.px]="timelineWidth"
-      [style.height.px]="noteHeight * midiNotes.length"
-    ></div>
+<div
+  class="absolute top-0 h-full pointer-events-none grid-background"
+  [ngStyle]="{
+    'background-size': gridSize + 'px ' + noteHeight + 'px',
+    'left.px': labelsWidth,
+    'width.px': timelineWidth - labelsWidth
+  }"
+  [style.height.px]="noteHeight * midiNotes.length"
+></div>
 
     <!-- Pitch Labels -->
-    <div class="absolute left-0 top-0 h-full z-10">
-      <div *ngFor="let n of midiNotes; let i = index"
-           [style.height.px]="noteHeight"
-           class="text-xs text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700 flex items-center justify-start px-1">
-        {{ n }}
-      </div>
-    </div>
+<div class="absolute left-0 top-0 h-full z-10 pitch-labels"
+     [style.width.px]="labelsWidth">
+  <div *ngFor="let n of midiNotes; let i = index"
+       [style.height.px]="noteHeight"
+       class="text-xs text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700 flex items-center justify-start px-1">
+    {{ n }}
+  </div>
+</div>
 
     <!-- Notes -->
     <div class="timeline relative"
-         [style.height.px]="noteHeight * midiNotes.length"
-         [style.minWidth.px]="timelineWidth">
+     [style.height.px]="noteHeight * midiNotes.length"
+     [style.marginLeft.px]="labelsWidth"
+     [style.minWidth.px]="timelineWidth - labelsWidth">
       <app-note
         *ngFor="let note of notes"
         [note]="note"
@@ -124,6 +127,8 @@
         [timelineWidth]="timelineWidth"
         [timelineHeight]="noteHeight * midiNotes.length"
         [gridSize]="gridSize"
+        [labelsWidth]="labelsWidth"
+
         (noteMoved)="onNoteMoved($event)"
         (noteResized)="onNoteResized($event)"
         (noteDeleted)="onNoteDeleted($event)"

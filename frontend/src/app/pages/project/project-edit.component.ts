@@ -24,14 +24,15 @@ export class ProjectEditComponent implements OnInit {
   message = '';
   editMode = false;
   isLoggedIn = false;
-  moveMode = true;
-  addMode = false;
+  moveMode = false;
+  addMode = true;
   deleteMode = false;
   timelineWidth = 1000;
   zoomFactor = 5;
   readonly lowestPitch = 48;
   readonly highestPitch = 71;
   gridSize = 50; // taille d'une case horizontale (px)
+  labelsWidth = 64;
 
   readonly noteHeight = 25;
   readonly timeStep = 50;
@@ -146,13 +147,10 @@ onTimelineClick(event: MouseEvent) {
   if (!this.addMode || !this.selectedPhoneme || !this.projectId) return;
 
   const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
-  const clickX = event.clientX - rect.left;
+  const clickX = event.clientX - rect.left - this.labelsWidth;
+  const snappedLeftPx = Math.round(clickX / this.gridSize) * this.gridSize;
   const clickY = event.clientY - rect.top;
 
-  // ✅ Snap horizontal sur la grille (pixels)
-  const snappedLeftPx = Math.round(clickX / this.gridSize) * this.gridSize;
-
-  // ✅ Snap vertical (pitch)
   const snappedPitchIndex = Math.floor(clickY / this.noteHeight);
   const snappedPitch = this.highestPitch - snappedPitchIndex;
 
@@ -161,14 +159,14 @@ onTimelineClick(event: MouseEvent) {
 
   const newNote = {
     project_id: this.projectId,
-    start_time: snappedLeftPx * this.zoomFactor, // ✅ converti en temps
-    duration: this.gridSize * this.zoomFactor,   // ✅ durée = 1 case
+    start_time: snappedLeftPx * this.zoomFactor,
+    duration: this.gridSize * this.zoomFactor,
     pitch: snappedPitch,
     lyrics: this.selectedPhoneme,
     voicebank_id: 'dcf322c1-9c36-45cd-8e07-cb08f791c361',
     phoneme_id: phoneme.id,
     order_index: this.notes.length,
-    left: snappedLeftPx,                        // ✅ affichage
+    left: snappedLeftPx,
     top: snappedPitchIndex * this.noteHeight,
     width: this.gridSize,
     height: this.noteHeight
@@ -270,7 +268,9 @@ onTimelineClick(event: MouseEvent) {
     return (this.highestPitch - pitch) * this.noteHeight;
   }
 
-  getNoteLeft(startTime: number) { return startTime / this.zoomFactor; }
+getNoteLeft(startTime: number) {
+  return startTime / this.zoomFactor; // OK
+}
   getNoteWidth(duration: number) { return duration / this.zoomFactor; }
 
   async initializeAudio() {

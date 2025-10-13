@@ -34,9 +34,89 @@
   @apply px-6 py-3 rounded-xl text-white font-semibold shadow-lg transition-transform transform hover:scale-105 hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-offset-2 focus:ring-emerald-400;
 }
 
+
+:root {
+  --labels-width: 64px; /* largeur colonne pitch labels */
+  --grid-line-color: rgba(255, 255, 255, 0.08); /* couleur des lignes principales */
+  --grid-strong-line-color: rgba(255, 255, 255, 0.15); /* optionnel : lignes fortes */
+}
+
+/* Colonne de labels */
+.pitch-labels {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.9);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 30;
+  user-select: none;
+}
+
+/* Fond de grille */
 .grid-background {
-  background-image: 
-    linear-gradient(to right, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
-    linear-gradient(to top, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
-  background-size: 50px 25px; /* horizontal = gridSize, vertical = noteHeight */
+  position: absolute;
+  top: 0;
+  height: 100%;
+  z-index: 5;
+  pointer-events: none;
+
+  /* Grille horizontale + verticale */
+  background-image:
+    linear-gradient(to right, var(--grid-line-color) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line-color) 1px, transparent 1px);
+
+  background-repeat: repeat;
+  background-position: 0 0;
+  /* background-size dynamique via Angular [ngStyle] */
+}
+
+/* Zone contenant les notes */
+.timeline {
+  position: relative;
+  z-index: 10;
+  min-height: 100%;
+}
+
+/* Notes */
+.note {
+  position: absolute;
+  background-color: rgba(255, 255, 255, 0.7);
+  border: 1px solid #fff;
+  border-radius: 3px;
+  color: white;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  transition: transform 0.05s ease-in-out;
+}
+.note.dragging {
+  opacity: 0.7;
+  cursor: grabbing;
+}
+.note.resizing {
+  cursor: ew-resize;
+}
+
+/* Optionnel : effet visuel si tu veux marquer les temps forts (toutes les 4 cases) */
+.grid-background::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  background-image: linear-gradient(
+    to right,
+    var(--grid-strong-line-color) 1px,
+    transparent 1px
+  );
+  background-size: calc(4 * 50px) 100%; /* 4 cases = mesure par défaut */
+  mix-blend-mode: multiply;
+  background-position: 0 0; /* aligne avec la grille principale */
+
+  opacity: 0.4;
 }
