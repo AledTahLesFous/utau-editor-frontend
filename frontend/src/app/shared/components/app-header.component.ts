@@ -61,7 +61,7 @@ export class AppHeaderComponent {
   goToProject(project: any) {
     this.isDropdownVisible = false;
     this.searchQuery = '';
-    this.router.navigate(['/projects', project.title]);
+    this.router.navigate(['/project-view', project.title]);
   }
 
   onEnter() {
