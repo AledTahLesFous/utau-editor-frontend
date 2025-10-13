@@ -58,4 +58,8 @@ getPhonemesByIds(ids: string[]) {
   return this.api.getPhonemesByIds(ids);
 }
 
+getVoicebanks(token: string) {
+  return this.api.getVoicebanks(token);
+}
+
 }

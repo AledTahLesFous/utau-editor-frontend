@@ -106,6 +106,14 @@
     });
   }
 
+getVoicebanks(token: string): Observable<any> {
+  return this.http.get(`${this.baseUrl}/items/voicebanks`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+}
+
+
+
 
 
   }

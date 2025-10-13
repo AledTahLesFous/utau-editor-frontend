@@ -29,6 +29,8 @@
         {{ showAdvanced ? 'Masquer les paramètres avancés' : 'Advanced Settings' }}
       </button>
 
+      
+
       <!-- Paramètres avancés -->
       <div *ngIf="showAdvanced" class="flex flex-col gap-3 mt-4 p-4 border border-white/30 rounded-2xl bg-white/10 backdrop-blur-sm">
         <input
@@ -53,6 +55,12 @@
           (input)="tempo = $any($event.target).value"
           class="w-full accent-emerald-400"
         />
+
+<select [(ngModel)]="primary_voicebank" name="primary_voicebank" class="input-field">
+  <option value="" disabled>Sélectionner un voicebank</option>
+  <option *ngFor="let vb of voicebanks" [value]="vb.id">{{ vb.name }}</option>
+</select>
+
 
         <input
           type="text"

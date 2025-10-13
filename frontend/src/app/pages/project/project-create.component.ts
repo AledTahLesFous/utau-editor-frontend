@@ -21,15 +21,19 @@ export class ProjectCreateComponent implements OnInit {
   key_signature = '';
   cover_image = '';
   status = '';
-  primary_voicebank = '';
   tags = '';
+
+  // ✅ La liste complète des voicebanks
+  voicebanks: any[] = [];
+
+  // ✅ L'ID du voicebank choisi comme primary
+  primary_voicebank: string = '';
 
   currentUserId: string | null = null;
   showAdvanced = false;
   message = '';
 
   isLoggedIn = false;
-
 
   constructor(
     private http: HttpClient,
@@ -40,10 +44,21 @@ export class ProjectCreateComponent implements OnInit {
 
   ngOnInit() {
     const token = localStorage.getItem('token');
-    this.isLoggedIn = !!localStorage.getItem('token');
-
+    this.isLoggedIn = !!token;
     if (!token) return;
 
+    // Récupérer toutes les voicebanks
+    this.projectService.getVoicebanks(token).subscribe({
+      next: (response: any) => {
+        this.voicebanks = response.data; // stocke toutes les voicebanks
+        console.log('Voicebanks:', this.voicebanks);
+      },
+      error: (err) => {
+        console.error('Erreur lors du chargement des voicebanks:', err);
+      }
+    });
+
+    // Récupérer l'utilisateur connecté
     this.authService.getMe(token).subscribe({
       next: (user: any) => this.currentUserId = user.data.id,
       error: (err) => {
@@ -63,19 +78,13 @@ export class ProjectCreateComponent implements OnInit {
     const projectData: any = {
       title: this.name,
       user_created: this.currentUserId,
+      primary_voicebank: this.primary_voicebank // ✅ inclure le choix de l'utilisateur
     };
 
-    if (this.description && this.description.trim() !== '') {
-      projectData.description = this.description;
-    }
-    if (this.tempo) {
-      projectData.tempo = this.tempo;
-    }
-    if (this.key_signature && this.key_signature.trim() !== '') {
-      projectData.key_signature = this.key_signature;
-    }
+    if (this.description?.trim()) projectData.description = this.description;
+    if (this.tempo) projectData.tempo = this.tempo;
+    if (this.key_signature?.trim()) projectData.key_signature = this.key_signature;
 
-    // Appel via ProjectService
     this.projectService.createProject(projectData, token).subscribe({
       next: () => {
         this.message = 'Projet créé avec succès !';
@@ -92,3 +101,4 @@ export class ProjectCreateComponent implements OnInit {
     this.router.navigate(['']);
   }
 }
+

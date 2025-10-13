@@ -33,3 +33,10 @@
 .btn-primary {
   @apply px-6 py-3 rounded-xl text-white font-semibold shadow-lg transition-transform transform hover:scale-105 hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-offset-2 focus:ring-emerald-400;
 }
+
+.grid-background {
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+    linear-gradient(to top, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+  background-size: 50px 25px; /* horizontal = gridSize, vertical = noteHeight */
+}

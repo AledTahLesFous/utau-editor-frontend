@@ -31,6 +31,8 @@ export class ProjectEditComponent implements OnInit {
   zoomFactor = 5;
   readonly lowestPitch = 48;
   readonly highestPitch = 71;
+  gridSize = 50; // taille d'une case horizontale (px)
+
   readonly noteHeight = 25;
   readonly timeStep = 50;
   midiNotes = Array.from({ length: 24 }, (_, i) => 71 - i);
@@ -140,35 +142,41 @@ export class ProjectEditComponent implements OnInit {
     }, token).subscribe();
   }
 
-  onTimelineClick(event: MouseEvent) {
-    if (!this.addMode || !this.selectedPhoneme || !this.projectId) return;
+onTimelineClick(event: MouseEvent) {
+  if (!this.addMode || !this.selectedPhoneme || !this.projectId) return;
 
-    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
-    const clickX = event.clientX - rect.left;
-    const clickY = event.clientY - rect.top;
+  const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+  const clickX = event.clientX - rect.left;
+  const clickY = event.clientY - rect.top;
 
-    const snappedStart = this.snapStartTime(clickX * this.zoomFactor);
-    const snappedPitch = this.snapPitch(this.highestPitch - Math.floor(clickY / this.noteHeight));
-    const phoneme = this.phonemes.find(p => p.name === this.selectedPhoneme);
-    if (!phoneme) return;
+  // ✅ Snap horizontal sur la grille (pixels)
+  const snappedLeftPx = Math.round(clickX / this.gridSize) * this.gridSize;
 
-    const newNote = {
-      project_id: this.projectId,
-      start_time: snappedStart,
-      duration: this.timeStep * 2,
-      pitch: snappedPitch,
-      lyrics: this.selectedPhoneme,
-      voicebank_id: "dcf322c1-9c36-45cd-8e07-cb08f791c361",
-      phoneme_id: phoneme.id,
-      order_index: this.notes.length,
-      left: snappedStart / this.zoomFactor,
-      top: this.getNoteY(snappedPitch),
-      width: (this.timeStep * 2) / this.zoomFactor,
-      height: this.noteHeight
-    };
+  // ✅ Snap vertical (pitch)
+  const snappedPitchIndex = Math.floor(clickY / this.noteHeight);
+  const snappedPitch = this.highestPitch - snappedPitchIndex;
 
-    this.addNote(newNote);
-  }
+  const phoneme = this.phonemes.find(p => p.name === this.selectedPhoneme);
+  if (!phoneme) return;
+
+  const newNote = {
+    project_id: this.projectId,
+    start_time: snappedLeftPx * this.zoomFactor, // ✅ converti en temps
+    duration: this.gridSize * this.zoomFactor,   // ✅ durée = 1 case
+    pitch: snappedPitch,
+    lyrics: this.selectedPhoneme,
+    voicebank_id: 'dcf322c1-9c36-45cd-8e07-cb08f791c361',
+    phoneme_id: phoneme.id,
+    order_index: this.notes.length,
+    left: snappedLeftPx,                        // ✅ affichage
+    top: snappedPitchIndex * this.noteHeight,
+    width: this.gridSize,
+    height: this.noteHeight
+  };
+
+  this.addNote(newNote);
+}
+
 
   addNote(newNote: any) {
     const token = localStorage.getItem('token');
