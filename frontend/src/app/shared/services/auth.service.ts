@@ -17,4 +17,9 @@ export class AuthService {
   getMe(token: string) {
     return this.api.getMe(token);
   }
+
+  updateMe(userData: any, token: string) {
+  return this.api.updateMe(userData, token);
+}
+
 }

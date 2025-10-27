@@ -28,6 +28,15 @@
       });
     }
 
+    // ---------------- Users ----------------
+
+
+    updateMe(userData: any, token: string): Observable<any> {
+      return this.http.patch(`${this.baseUrl}/users/me`, userData, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+    }
+
     // ---------------- Projects ----------------
 
     getProjects(): Observable<{ data: Projet[] }> {
