@@ -43,6 +43,9 @@ export class ProjectEditComponent implements OnInit {
   phonemes: any[] = [];
   selectedPhoneme: string = '';
 
+  status = 'draft';
+  availableStatuses = ['draft', 'published', 'archived'];
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -73,6 +76,8 @@ export class ProjectEditComponent implements OnInit {
         this.key_signature = project.key_signature;
         this.duration = project.duration || 100;
         this.durationEdit = this.duration;
+        this.status = project.status || 'draft'; // ✅ on récupère le status
+
         this.updateTimelineWidth();
 
         if (project.duration) {
@@ -208,7 +213,9 @@ onTimelineClick(event: MouseEvent) {
       description: this.description,
       tempo: this.tempo,
       key_signature: this.key_signature,
-      duration: this.durationEdit
+      duration: this.durationEdit,
+      status: this.status, // ✅ Inclure le status dans la mise à jour
+
     };
 
     this.projectService.updateProjectById(this.projectId, data, token).subscribe({
