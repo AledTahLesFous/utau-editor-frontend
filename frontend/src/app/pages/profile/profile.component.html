@@ -1,0 +1,36 @@
+<app-header></app-header>
+
+<div class="container mx-auto mt-10 p-6 max-w-md bg-white rounded-lg shadow-md">
+  <h2 class="text-2xl font-bold mb-4 text-center">Mon profil</h2>
+
+  <div *ngIf="loading" class="text-center">
+    <p>Chargement du profil...</p>
+  </div>
+
+  <div *ngIf="!loading && error" class="text-red-500 text-center">
+    {{ error }}
+  </div>
+
+  <div *ngIf="!loading && user" class="text-center space-y-4">
+    <div>
+      <p class="text-lg"><strong>Nom :</strong> {{ user.first_name || 'Non renseigné' }}</p>
+      <p class="text-lg"><strong>Email :</strong> {{ user.email }}</p>
+    </div>
+
+    <div class="flex justify-center gap-4 mt-6">
+      <button
+        (click)="editProfile()"
+        class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition"
+      >
+        Modifier
+      </button>
+
+      <button
+        (click)="logout()"
+        class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg transition"
+      >
+        Déconnexion
+      </button>
+    </div>
+  </div>
+</div>
