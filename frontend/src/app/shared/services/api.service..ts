@@ -31,7 +31,7 @@
     // ---------------- Users ----------------
 
 
-    updateMe(userData: any, token: string): Observable<any> {
+      updateMe(userData: any, token: string): Observable<any> {
       return this.http.patch(`${this.baseUrl}/users/me`, userData, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -39,9 +39,10 @@
 
     // ---------------- Projects ----------------
 
-    getProjects(): Observable<{ data: Projet[] }> {
-      return this.http.get<{ data: Projet[] }>(`${this.baseUrl}/items/projects`);
-    }
+getProjects(): Observable<{ data: Projet[] }> {
+  return this.http.get<{ data: Projet[] }>(`${this.baseUrl}/items/projects?filter[status][_eq]=published`);
+}
+
 
     createProject(projectData: any, token: string): Observable<any> {
       return this.http.post(`${this.baseUrl}/items/projects`, projectData, {
