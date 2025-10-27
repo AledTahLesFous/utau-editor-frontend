@@ -10,6 +10,8 @@ import { ProjectCreateComponent } from './app/pages/project/project-create.compo
 import { ProjectViewComponent } from './app/pages/project/project-view.component';
 import { ProjectListComponent } from './app/pages/project/project-list.component';
 import { ProjectEditComponent } from './app/pages/project/project-edit.component';
+import { ProfileComponent } from './app/pages/profile/profile.component';
+
 
 import { AuthGuard } from './app/shared/guard/auth.guard';
 
@@ -21,6 +23,7 @@ const routes: Routes = [
   { path: 'projects', component: ProjectListComponent, canActivate: [AuthGuard] },
   { path: 'project/:name', component: ProjectEditComponent, canActivate: [AuthGuard] },
   { path: 'project-view/:name', component: ProjectViewComponent },
+  { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
   { path: '**', redirectTo: '' }
 ];
 
