@@ -1,49 +1,15 @@
-## A Faire
+# A faire
 
-ENLEVER CE PTN DE 15 MIN REFRESH DE MERDE
+## API
+- Profil
+- Project 
 
-Prochaine étape :
-- Faire script parsing .wav en romanji
-- Creer interface pour ajouter notes **
-- Corriger Key Singature lors creation
+## Front end
+- CSS
+- View project ( others )
 
-- MIDI from 48 to 71 (c3 do b4)
----
-### 1. Pour création projet :
-- Faire juste le *required*
-- Faire un "Advanced settings" pour tout les autrs param
-- Corriger NULL en champs (user_created)
----
-
-### 2. Notes :
-- Faire le script pour MIDI 128 notes, demander a maril ?
----
-
-### 3. Frontend :
-- Bouton retour dans /projet
-- Homepage avec infos
-- CSS mais plus tard
-- Sandbox no-projet
-
-### 4. TO-DO :
-- Redirection projet apres création -> page de creation de utau avec choix notes etc
-- Faire backend pixel avec voicebank demo Kasane teto 
-- Filtres de notes/voicebank lors création + filtres notes lors conception
-- Grille de projet
-- Faire Refresh pour token
-- Faire OAuth
-- Faire sécu a la fin
-- Faire scripts d'intégration : 
-    1. Retrive Projects -> Users
-    2. ...
-- Clean le code en anglais
-- Setup les AUTORISATIONS mais faire gaffe a sécu$
-- Faire de l'UX
-- Séparer html css et ts
-- Unique project name per user
-
-- TAGS ????
----
-
-1. Lié id au projet
-2. Tempo
+## Workflow
+- Tempo
+- Key signature
+- OAuth
+- Profile
