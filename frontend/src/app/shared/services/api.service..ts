@@ -39,9 +39,9 @@
 
     // ---------------- Projects ----------------
 
-getProjects(): Observable<{ data: Projet[] }> {
-  return this.http.get<{ data: Projet[] }>(`${this.baseUrl}/items/projects?filter[status][_eq]=published`);
-}
+    getProjects(): Observable<{ data: Projet[] }> {
+      return this.http.get<{ data: Projet[] }>(`${this.baseUrl}/items/projects?filter[status][_eq]=published`);
+    }
 
 
     createProject(projectData: any, token: string): Observable<any> {

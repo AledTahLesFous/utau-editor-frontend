@@ -27,7 +27,7 @@ export class ProjectListComponent implements OnInit {
     const userId = localStorage.getItem('userId');
     if (!token || !userId) return;
 
-    this.http.get(`http://127.0.0.1:8055/items/projects?filter[user_created][_eq]=${userId}`, {
+    this.http.get(`http://localhost:8055/items/projects?filter[user_created][_eq]=${userId}`, {
       headers: { Authorization: `Bearer ${token}` }
     }).subscribe({
       next: (res: any) => this.projects = res.data || [],
@@ -48,7 +48,7 @@ export class ProjectListComponent implements OnInit {
 
     if (!confirm('Êtes-vous sûr de vouloir supprimer ce projet ?')) return;
 
-    this.http.delete(`http://127.0.0.1:8055/items/projects/${projectId}`, {
+    this.http.delete(`http://localhost:8055/items/projects/${projectId}`, {
       headers: { Authorization: `Bearer ${token}` }
     }).subscribe({
       next: () => {

@@ -15,7 +15,6 @@ export class AuthCallbackComponent implements OnInit {
   ngOnInit() {
     const params = new URLSearchParams(window.location.search);
     const code = params.get('code'); // récupère le code GitHub
-      console.log('GitHub code:', code); // 🔹 ajoute ce log
 
 
     if (!code) {
@@ -29,9 +28,8 @@ export class AuthCallbackComponent implements OnInit {
       .subscribe({
         next: (res: any) => {
           // Directus renvoie { access_token, user }
-          console.log("Res: ", res);
           localStorage.setItem('token', res.access_token);
-          localStorage.setItem('user', JSON.stringify(res.user));
+          localStorage.setItem('userId', res.user.id);
           this.router.navigate(['/home']);
         },
         error: (err) => console.error('Erreur login Directus:', err),
