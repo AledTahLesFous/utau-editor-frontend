@@ -12,7 +12,7 @@ import { ProjectListComponent } from './app/pages/project/project-list.component
 import { ProjectEditComponent } from './app/pages/project/project-edit.component';
 import { ProfileComponent } from './app/pages/profile/profile.component';
 
-import { AuthCallbackComponent } from './app/pages/auth/auth.callback';
+import { AuthCallbackComponent } from './app/pages/auth/callback.componenet';
 
 
 import { AuthGuard } from './app/shared/guard/auth.guard';
