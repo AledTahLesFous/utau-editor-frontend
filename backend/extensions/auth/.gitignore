@@ -1,3 +1,22 @@
 .DS_Store
 node_modules
 dist
+
+
+module.exports = function registerEndpoint(router) {
+  // Ajoute ça **avant** router.post(...)
+  router.use(require('express').json());
+
+  router.post('/exchange-code', async (req, res) => {
+    console.log('Body reçu:', req.body); // 🔹 pour debug
+    const { code } = req.body;
+
+    if (!code) {
+      console.error('Code GitHub manquant dans le body');
+      return res.status(400).json({ error: 'Code GitHub manquant' });
+    }
+
+    console.log('Code GitHub reçu dans Directus:', code);
+    res.json({ receivedCode: code }); // renvoie juste pour tester
+  });
+};
