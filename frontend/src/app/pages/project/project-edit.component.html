@@ -102,16 +102,18 @@
     (contextmenu)="$event.preventDefault()"
   >
 
-    <!-- Grid Background -->
+<!-- Grid Background -->
 <div
   class="absolute top-0 h-full pointer-events-none grid-background"
   [ngStyle]="{
     'background-size': gridSize + 'px ' + noteHeight + 'px',
     'left.px': labelsWidth,
-    'width.px': timelineWidth - labelsWidth
+    'width.px': timelineWidth - labelsWidth,
+    'min-width.px': 1400
   }"
   [style.height.px]="noteHeight * midiNotes.length"
 ></div>
+
 
     <!-- Pitch Labels -->
 <div class="absolute left-0 top-0 h-full z-10 pitch-labels"
