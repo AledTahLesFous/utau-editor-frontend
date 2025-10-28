@@ -97,7 +97,7 @@
   <!-- Timeline Container -->
   <div
     class="mt-12 relative overflow-x-auto overflow-y-hidden border border-gray-300 rounded-lg shadow bg-gray-50 dark:bg-gray-900 "
-    [style.height.px]="noteHeight * midiNotes.length + 16"
+    [style.height.px]="noteHeight * midiNotes.length"
     (click)="onTimelineClick($event)"
     (contextmenu)="$event.preventDefault()"
   >
