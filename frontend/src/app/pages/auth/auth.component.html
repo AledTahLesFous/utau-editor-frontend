@@ -45,6 +45,11 @@
           Pas encore inscrit ?
           <a (click)="flipCard()" class="text-blue-500 font-semibold hover:underline cursor-pointer">Créer un compte</a>
         </p>
+
+        <button (click)="loginWithGitHub()"
+        class="px-4 py-2 bg-black text-white rounded-lg">
+        Se connecter avec GitHub
+      </button>
       </div>
 
       <!-- Face arrière: Register -->
@@ -60,6 +65,8 @@
           <button type="submit" class="btn-primary bg-gradient-to-r from-blue-500 to-indigo-500 flex items-center justify-center gap-2">
             S'inscrire
           </button>
+
+          
         </form>
 
         <p *ngIf="errorMessage" class="text-red-500 mt-4 text-sm">{{ errorMessage }}</p>
@@ -67,6 +74,9 @@
           Déjà inscrit ?
           <a (click)="flipCard()" class="text-green-500 font-semibold hover:underline cursor-pointer">Se connecter</a>
         </p>
+
+
+
       </div>
 
     </div>

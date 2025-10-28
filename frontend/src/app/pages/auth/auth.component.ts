@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { AuthService } from '../../shared/services/auth.service';
 import { Router } from '@angular/router';
 import { catchError } from 'rxjs/operators';
+import { HttpClient } from '@angular/common/http';
 import { of } from 'rxjs';
 
 @Component({
@@ -27,14 +28,26 @@ export class AuthComponent implements OnInit {
   successMessage = '';
   isNotificationLeaving = false;
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(private authService: AuthService, private router: Router, private http: HttpClient) {}
 
-  ngOnInit(): void {
-    const token = localStorage.getItem('token');
-    if (token) {
-      this.router.navigate(['']); // déjà connecté
-    }
+ngOnInit(): void {
+  const token = localStorage.getItem('token');
+  if (token) {
+    this.router.navigate(['/home']); // déjà connecté
+    return;
   }
+
+  const params = new URLSearchParams(window.location.search);
+  const accessToken = params.get('access_token'); // Directus met le JWT ici
+  if (accessToken) {
+    localStorage.setItem('token', accessToken);
+    // enlever le param pour garder l'URL propre
+    window.history.replaceState({}, '', '/auth');
+    this.router.navigate(['/home']);
+  }
+}
+
+
 
 flipCard(showSuccess = false, successMsg: string = '') {
   this.isFlipped = !this.isFlipped;
@@ -111,6 +124,14 @@ register() {
       }, 3500);
     });
 }
+
+ // --- GitHub OAuth ---
+loginWithGitHub() {
+  const redirectUri = encodeURIComponent('http://localhost:4200/auth/callback');
+  window.location.href = `http://localhost:8055/auth/login/github?redirect=http://localhost:4200/auth/callback`;
+}
+
+
 
 
 }
