@@ -125,13 +125,9 @@ register() {
     });
 }
 
- // --- GitHub OAuth ---
 loginWithGitHub() {
-  const redirectUri = encodeURIComponent('http://localhost:4200/auth/callback');
-  window.location.href = `http://localhost:8055/auth/login/github?redirect=http://localhost:4200/auth/callback`;
+  window.location.href = 'http://localhost:8055/auth/login/github?redirect=http://localhost:4200/auth/callback';
 }
-
-
 
 
 }
