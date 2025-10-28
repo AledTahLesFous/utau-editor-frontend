@@ -126,7 +126,14 @@ register() {
 }
 
 loginWithGitHub() {
-  window.location.href = 'http://localhost:8055/auth/login/github?redirect=http://localhost:4200/auth/callback';
+  const clientId = 'Ov23lidYYoiAXBZhCzlg'; // public
+  const redirectUri = encodeURIComponent('http://localhost:4200/auth/callback');
+  const scope = encodeURIComponent('read:user user:email');
+  const state = Math.random().toString(36).substring(2);
+
+  const githubUrl = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&state=${state}`;
+
+  window.location.href = githubUrl;
 }
 
 
