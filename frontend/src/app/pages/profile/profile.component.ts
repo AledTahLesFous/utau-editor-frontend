@@ -39,6 +39,9 @@ export class ProfileComponent implements OnInit {
         console.error('Erreur lors du chargement du profil :', err);
         this.error = 'Impossible de charger le profil utilisateur.';
         this.loading = false;
+        localStorage.removeItem('token');
+        localStorage.removeItem('userId');
+        this.router.navigate(['/auth']);
       },
     });
   }
