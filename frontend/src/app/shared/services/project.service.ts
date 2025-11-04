@@ -62,4 +62,22 @@ getVoicebanks(token: string) {
   return this.api.getVoicebanks(token);
 }
 
+// Likes
+getLikesByProject(projectId: string) {
+  return this.api.getLikesByProject(projectId);
+}
+
+getUserLikeForProject(userId: string, projectId: string) {
+  return this.api.getUserLikeForProject(userId, projectId);
+}
+
+addLike(projectId: string, userId: string, token: string) {
+  return this.api.addLike(projectId, userId, token);
+}
+
+removeLike(likeId: string, token: string) {
+  return this.api.removeLike(likeId, token);
+}
+
+
 }

@@ -52,6 +52,12 @@
 
 </div>
 <div class="mt-6 flex gap-4 justify-center">
+  <div class="project-likes">
+  <button (click)="toggleLike()">
+    {{ userLikeId ? '❤️' : '🤍' }} Like ({{ likesCount }})
+  </button>
+</div>
+
   <button
     (click)="initializeAudio()"
     class="px-4 py-2 rounded-xl font-semibold shadow text-white hover:scale-105 transition-all duration-300 bg-blue-500 text-sm"

@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AppHeaderComponent } from '../../shared/components/app-header.component';
+import { ProjectService } from '../../shared/services/project.service';
 
 // Assure-toi d'installer Tone.js : npm install tone
 import * as Tone from 'tone';
@@ -24,6 +25,9 @@ export class ProjectViewComponent implements OnInit {
   isLoggedIn = false;
   notes: any[] = [];
 
+  likesCount = 0;
+  userLikeId: string | null = null;
+
   midiNotes = Array.from({ length: 24 }, (_, i) => 71 - i);
 
 
@@ -42,36 +46,44 @@ export class ProjectViewComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private http: HttpClient,
-    private router: Router
+    private router: Router,
+    private projectService: ProjectService 
   ) {}
 
   ngOnInit() {
-    const projectName = this.route.snapshot.paramMap.get('name');
-    this.isLoggedIn = !!localStorage.getItem('token');
-    if (!projectName) return;
+  const projectName = this.route.snapshot.paramMap.get('name');
+  this.isLoggedIn = !!localStorage.getItem('token');
+  if (!projectName) return;
 
-    this.http
-      .get(`http://127.0.0.1:8055/items/projects?filter[title][_eq]=${projectName}`)
-      .subscribe({
-        next: (res: any) => {
-          if (res.data && res.data.length > 0) {
-            const project = res.data[0];
-            this.projectId = project.id;
-            this.title = project.title;
-            this.description = project.description;
-            this.tempo = project.tempo;
-            this.key_signature = project.key_signature;
-            this.loadNotes(this.projectId);
-          } else {
-            this.message = 'Projet introuvable';
-          }
-        },
-        error: (err) => {
-          console.error(err);
-          this.message = 'Erreur lors de la récupération du projet';
+  this.http
+    .get(`http://127.0.0.1:8055/items/projects?filter[title][_eq]=${projectName}`)
+    .subscribe({
+      next: (res: any) => {
+        if (res.data && res.data.length > 0) {
+          const project = res.data[0];
+          this.projectId = project.id;
+
+          const userId = localStorage.getItem('userId');
+          if (userId) this.loadUserLike(userId);
+
+          this.title = project.title;
+          this.description = project.description;
+          this.tempo = project.tempo;
+          this.key_signature = project.key_signature;
+          this.loadNotes(this.projectId);
+        } else {
+          this.message = 'Projet introuvable';
         }
-      });
-  }
+      },
+      error: (err) => {
+        console.error(err);
+        this.message = 'Erreur lors de la récupération du projet';
+      }
+    });
+}
+
+
+
 
   loadNotes(projectId: string) {
     this.http.get(`http://127.0.0.1:8055/items/notes?filter[project_id][_eq]=${projectId}`)
@@ -158,4 +170,55 @@ getNoteY(pitch: number): number {
 
     console.log('▶️ Lecture des notes lancée');
   }
+
+  loadUserLike(userId: string) {
+  this.projectService.getUserLikeForProject(userId, this.projectId).subscribe({
+    next: (res: any) => {
+      if (res.data && res.data.length > 0) {
+        this.userLikeId = res.data[0].id;
+      } else {
+        this.userLikeId = null;
+      }
+      this.loadLikesCount();
+    },
+    error: (err) => console.error('Erreur récupération like utilisateur', err)
+  });
+}
+
+loadLikesCount() {
+  this.projectService.getLikesByProject(this.projectId).subscribe({
+    next: (res: any) => this.likesCount = res.data.length,
+    error: (err) => console.error('Erreur récupération nombre de likes', err)
+  });
+}
+
+toggleLike() {
+  console.log(this.projectId);
+
+  const token = localStorage.getItem('token');
+  const userId = localStorage.getItem('userId');
+  console.log(userId);
+
+  if (!token || !userId) return;
+
+  if (this.userLikeId) {
+    // Supprimer le like existant
+    this.projectService.removeLike(this.userLikeId, token).subscribe({
+      next: () => {
+        this.userLikeId = null;
+        this.likesCount--;
+      },
+      error: (err) => console.error('Erreur suppression like', err)
+    });
+  } else {
+    // Ajouter un nouveau like
+    this.projectService.addLike(this.projectId, userId, token).subscribe({
+      next: (res: any) => {
+        this.userLikeId = res.data.id;
+        this.likesCount++;
+      },
+      error: (err) => console.error('Erreur ajout like', err)
+    });
+  }
+}
 }

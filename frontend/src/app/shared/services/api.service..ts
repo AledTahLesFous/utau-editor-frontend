@@ -122,8 +122,27 @@ getVoicebanks(token: string): Observable<any> {
   });
 }
 
+// ---------------- Likes ----------------
+getLikesByProject(projectId: string): Observable<any> {
+  return this.http.get(`${this.baseUrl}/items/likes?filter[project_id][_eq]=${projectId}`);
+}
 
+getUserLikeForProject(userId: string, projectId: string): Observable<any> {
+  return this.http.get(`${this.baseUrl}/items/likes?filter[project_id][_eq]=${projectId}&filter[userId][_eq]=${userId}`);
+}
 
+addLike(projectId: string, userId: string, token: string): Observable<any> {
+  console.log(projectId, userId);
+  return this.http.post(`${this.baseUrl}/items/likes`, { project_id: projectId, user_id: userId }, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+}
+
+removeLike(likeId: string, token: string): Observable<any> {
+  return this.http.delete(`${this.baseUrl}/items/likes/${likeId}`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+}
 
 
   }
