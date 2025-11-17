@@ -22,9 +22,6 @@ export class ProjectService {
     return this.api.updateProject(name, projectData, token);
   }
 
-  deleteProject(name: string, token: string) {
-    return this.api.deleteProject(name, token);
-  }
 
   getProjectByTitle(title: string, token: string) {
   return this.api.getProjectByTitle(title, token);
@@ -79,5 +76,16 @@ removeLike(likeId: string, token: string) {
   return this.api.removeLike(likeId, token);
 }
 
+uploadFile(file: File, token: string) {
+  return this.api.uploadFile(file, token);
+}
+
+getUserProjects(userId: string, token: string) {
+  return this.api.getProjectsByUser(userId, token);
+}
+
+deleteProject(projectId: string, token: string) {
+  return this.api.deleteProjectById(projectId, token);
+  }
 
 }

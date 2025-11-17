@@ -20,10 +20,27 @@
         class="w-full p-3 text-sm rounded-xl border border-gray-300 dark:border-gray-600 bg-white/70 dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-400"
       />
 
+      <!-- Thumbnail -->
+<label class="text-sm font-medium text-gray-900 dark:text-white">
+  Image de couverture (thumbnail)
+</label>
+<input
+  type="file"
+  (change)="onFileSelected($event)"
+  accept="image/*"
+  class="w-full p-2 text-sm rounded-xl border border-gray-300 dark:border-gray-600 bg-white/70 dark:bg-gray-800 text-gray-900 dark:text-white"
+/>
+
+<!-- Affichage de l’aperçu -->
+<img *ngIf="coverFile" [src]="coverFile | filePreview" alt="Aperçu" class="mt-2 w-32 h-32 object-cover rounded-xl mx-auto border border-gray-300" />
+
+
       <select [(ngModel)]="primary_voicebank" name="primary_voicebank" class="input-field">
   <option value="" disabled>Sélectionner un voicebank</option>
   <option *ngFor="let vb of voicebanks" [value]="vb.id">{{ vb.name }}</option>
 </select>
+
+
 
       <!-- Bouton Advanced Settings -->
       <button

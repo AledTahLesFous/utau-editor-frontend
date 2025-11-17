@@ -6,12 +6,12 @@ import { FormsModule } from '@angular/forms';
 import { ProjectService } from '../../shared/services/project.service';
 import { AuthService } from '../../shared/services/auth.service';
 import { AppHeaderComponent} from '../../shared/components/app-header.component'
-
+import { FilePreviewPipe } from '../../shared/interfaces/filePreview';
 
 @Component({
   selector: 'app-project',
   standalone: true,
-  imports: [CommonModule, FormsModule, AppHeaderComponent],
+  imports: [CommonModule, FormsModule, AppHeaderComponent, FilePreviewPipe],
   templateUrl: './project-create.component.html',
 })
 export class ProjectCreateComponent implements OnInit {
@@ -19,7 +19,8 @@ export class ProjectCreateComponent implements OnInit {
   description = '';
   tempo: number = 120;
   key_signature = 'C';
-  cover_image = '';
+  duration = 100;
+  coverFile: File | null = null; // fichier sélectionné
   status = '';
   tags = '';
 
@@ -68,37 +69,60 @@ export class ProjectCreateComponent implements OnInit {
     });
   }
 
-  createProject() {
-    const token = localStorage.getItem('token');
-    if (!token || !this.currentUserId) {
-      this.message = 'Impossible de créer le projet : utilisateur non identifié.';
-      return;
+  onFileSelected(event: any) {
+    if (event.target.files && event.target.files.length > 0) {
+      this.coverFile = event.target.files[0];
     }
+  }
+  back() {
+  this.router.navigate(['']);
+}
 
-    const projectData: any = {
-      title: this.name,
-      user_created: this.currentUserId,
-      primary_voicebank: this.primary_voicebank // ✅ inclure le choix de l'utilisateur
-    };
 
-    if (this.description?.trim()) projectData.description = this.description;
-    if (this.tempo) projectData.tempo = this.tempo;
-    if (this.key_signature?.trim()) projectData.key_signature = this.key_signature;
+createProject() {
+  const token = localStorage.getItem('token');
+  if (!token || !this.currentUserId) return;
 
-    this.projectService.createProject(projectData, token).subscribe({
-      next: () => {
-        this.message = 'Projet créé avec succès !';
-        this.router.navigate(['/project', this.name]);
+  const projectData: any = {
+    title: this.name,
+    user_created: this.currentUserId,
+    primary_voicebank: this.primary_voicebank
+  };
+
+  if (this.description?.trim()) projectData.description = this.description;
+  if (this.tempo) projectData.tempo = this.tempo;
+  if (this.key_signature?.trim()) projectData.key_signature = this.key_signature;
+
+  if (this.coverFile) {
+    // 1️⃣ uploader le fichier
+    this.projectService.uploadFile(this.coverFile, token).subscribe({
+      next: (res: any) => {
+        // res.data.id contient l'UUID du fichier
+        projectData.cover_image = res.data.id;
+        this.submitProject(projectData, token);
       },
       error: (err) => {
-        console.error(err);
-        this.message = 'Erreur lors de la création du projet';
+        console.error('Erreur upload fichier:', err);
+        this.message = 'Impossible de téléverser l’image';
       }
     });
+  } else {
+    this.submitProject(projectData, token);
   }
+}
 
-  back() {
-    this.router.navigate(['']);
-  }
+private submitProject(projectData: any, token: string) {
+  this.projectService.createProject(projectData, token).subscribe({
+    next: () => {
+      this.message = 'Projet créé avec succès !';
+      this.router.navigate(['/project', this.name]);
+    },
+    error: (err) => {
+      console.error(err);
+      this.message = 'Erreur lors de la création du projet';
+    }
+  });
+}
+
 }
 

@@ -27,13 +27,8 @@ export class ProjectListComponent implements OnInit {
     const userId = localStorage.getItem('userId');
     if (!token || !userId) return;
 
-    this.projectService.getProjects().subscribe({
-      next: (res: any) => {
-        // filtrer les projets créés par l'utilisateur
-        this.projects = (res.data || []).filter(
-          (p: any) => p.user_created === userId
-        );
-      },
+    this.projectService.getUserProjects(userId, token).subscribe({
+      next: (res: any) => this.projects = res.data || [],
       error: (err) => {
         console.error(err);
         this.message = 'Erreur lors de la récupération des projets';
@@ -48,13 +43,12 @@ export class ProjectListComponent implements OnInit {
   deleteProject(projectId: string) {
     const token = localStorage.getItem('token');
     if (!token) return;
-
     if (!confirm('Êtes-vous sûr de vouloir supprimer ce projet ?')) return;
 
     this.projectService.deleteProject(projectId, token).subscribe({
       next: () => {
         this.message = 'Projet supprimé avec succès !';
-        this.loadProjects(); // recharge la liste
+        this.loadProjects();
       },
       error: (err) => {
         console.error(err);

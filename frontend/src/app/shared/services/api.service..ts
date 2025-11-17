@@ -144,6 +144,26 @@ removeLike(likeId: string, token: string): Observable<any> {
     headers: { Authorization: `Bearer ${token}` }
   });
 }
+uploadFile(file: File, token: string) {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  return this.http.post(`${this.baseUrl}/files`, formData, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+}
+
+  getProjectsByUser(userId: string, token: string): Observable<any> {
+    return this.http.get(`${this.baseUrl}/items/projects?filter[user_created][_eq]=${userId}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+  }
+
+  deleteProjectById(projectId: string, token: string): Observable<any> {
+    return this.http.delete(`${this.baseUrl}/items/projects/${projectId}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+  }
 
 
   }
