@@ -128,8 +128,9 @@ getLikesByProject(projectId: string): Observable<any> {
 }
 
 getUserLikeForProject(userId: string, projectId: string): Observable<any> {
-  return this.http.get(`${this.baseUrl}/items/likes?filter[project_id][_eq]=${projectId}&filter[userId][_eq]=${userId}`);
+  return this.http.get(`${this.baseUrl}/items/likes?filter[project_id][_eq]=${projectId}&filter[user_id][_eq]=${userId}`);
 }
+
 
 addLike(projectId: string, userId: string, token: string): Observable<any> {
   console.log(projectId, userId);

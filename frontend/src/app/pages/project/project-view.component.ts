@@ -4,6 +4,8 @@ import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AppHeaderComponent } from '../../shared/components/app-header.component';
+import { ProjectService } from '../../shared/services/project.service';
+
 import * as Tone from 'tone';
 
 @Component({
@@ -44,7 +46,9 @@ export class ProjectViewComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private http: HttpClient,
-    private router: Router
+    private router: Router,
+    private projectService: ProjectService,
+
   ) {}
 
   ngOnInit() {
@@ -151,50 +155,41 @@ async playAudio() {
 
 
   // ---------------- Likes Logic ----------------
-  loadUserLike(userId: string) {
-    this.http.get(`http://127.0.0.1:8055/items/likes?filter[project_id][_eq]=${this.projectId}&filter[user_id][_eq]=${userId}`)
-      .subscribe({
-        next: (res: any) => {
-          this.userLikeId = res.data?.[0]?.id || null;
-          this.loadLikesCount();
-        },
-        error: (err) => console.error('Erreur récupération user like:', err)
-      });
-  }
+loadUserLike(userId: string) {
+  this.projectService.getUserLikeForProject(userId, this.projectId).subscribe({
+    next: (res: any) => {
+      this.userLikeId = res.data?.[0]?.id || null;
+      this.loadLikesCount();
+    },
+    error: (err) => console.error('Erreur récupération user like:', err)
+  });
+}
 
-  loadLikesCount() {
-    this.http.get(`http://127.0.0.1:8055/items/likes?filter[project_id][_eq]=${this.projectId}`)
-      .subscribe({
-        next: (res: any) => this.likesCount = res.data.length,
-        error: (err) => console.error('Erreur récupération likes count:', err)
-      });
-  }
+loadLikesCount() {
+  this.projectService.getLikesByProject(this.projectId).subscribe({
+    next: (res: any) => this.likesCount = res.data.length,
+    error: (err) => console.error('Erreur récupération likes count:', err)
+  });
+}
+toggleLike() {
+  const token = localStorage.getItem('token');
+  const userId = localStorage.getItem('userId');
+  if (!token || !userId) return;
 
-  toggleLike() {
-    const token = localStorage.getItem('token');
-    const userId = localStorage.getItem('userId');
-    if (!token || !userId) return;
-
-    if (this.userLikeId) {
-      this.http.delete(`http://127.0.0.1:8055/items/likes/${this.userLikeId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      }).subscribe({
-        next: () => { this.userLikeId = null; this.likesCount--; },
-        error: (err) => console.error('Erreur suppression like:', err)
-      });
-    } else {
-      this.http.post(`http://127.0.0.1:8055/items/likes`, {
-        project_id: this.projectId,
-        user_id: userId
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
-      }).subscribe({
-        next: (res: any) => {
-          this.userLikeId = res.data.id;
-          this.likesCount++;
-        },
-        error: (err) => console.error('Erreur ajout like:', err)
-      });
-    }
+  if (this.userLikeId) {
+    this.projectService.removeLike(this.userLikeId, token).subscribe({
+      next: () => { this.userLikeId = null; this.likesCount--; },
+      error: (err) => console.error('Erreur suppression like:', err)
+    });
+  } else {
+    this.projectService.addLike(this.projectId, userId, token).subscribe({
+      next: (res: any) => {
+        this.userLikeId = res.data.id;
+        this.likesCount++;
+      },
+      error: (err) => console.error('Erreur ajout like:', err)
+    });
   }
+}
+
 }

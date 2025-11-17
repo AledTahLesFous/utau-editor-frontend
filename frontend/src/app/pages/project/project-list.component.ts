@@ -1,21 +1,21 @@
 import { Component, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { AppHeaderComponent} from '../../shared/components/app-header.component'
+import { AppHeaderComponent } from '../../shared/components/app-header.component';
+import { ProjectService } from '../../shared/services/project.service';
 
 @Component({
   selector: 'app-project-list',
   standalone: true,
   imports: [CommonModule, AppHeaderComponent],
   templateUrl: './project-list.component.html',
-
 })
 export class ProjectListComponent implements OnInit {
   projects: any[] = [];
   message = '';
   isLoggedIn = false;
-  constructor(private http: HttpClient, private router: Router) {}
+
+  constructor(private router: Router, private projectService: ProjectService) {}
 
   ngOnInit() {
     this.isLoggedIn = !!localStorage.getItem('token');
@@ -27,10 +27,13 @@ export class ProjectListComponent implements OnInit {
     const userId = localStorage.getItem('userId');
     if (!token || !userId) return;
 
-    this.http.get(`http://localhost:8055/items/projects?filter[user_created][_eq]=${userId}`, {
-      headers: { Authorization: `Bearer ${token}` }
-    }).subscribe({
-      next: (res: any) => this.projects = res.data || [],
+    this.projectService.getProjects().subscribe({
+      next: (res: any) => {
+        // filtrer les projets créés par l'utilisateur
+        this.projects = (res.data || []).filter(
+          (p: any) => p.user_created === userId
+        );
+      },
       error: (err) => {
         console.error(err);
         this.message = 'Erreur lors de la récupération des projets';
@@ -48,9 +51,7 @@ export class ProjectListComponent implements OnInit {
 
     if (!confirm('Êtes-vous sûr de vouloir supprimer ce projet ?')) return;
 
-    this.http.delete(`http://localhost:8055/items/projects/${projectId}`, {
-      headers: { Authorization: `Bearer ${token}` }
-    }).subscribe({
+    this.projectService.deleteProject(projectId, token).subscribe({
       next: () => {
         this.message = 'Projet supprimé avec succès !';
         this.loadProjects(); // recharge la liste
