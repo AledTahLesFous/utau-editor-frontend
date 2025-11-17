@@ -89,8 +89,8 @@ deleteProject(projectId: string, token: string) {
   }
 
   // project.service.ts
-getCoverImage(fileId: string, token: string) {
-  return this.api.getFileById(fileId, token);
+getCoverImage(fileId: string) {
+  return this.api.getFileById(fileId);
 }
 
 

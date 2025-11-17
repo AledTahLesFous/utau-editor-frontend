@@ -26,6 +26,8 @@ export class ProjectViewComponent implements OnInit {
   labelsWidth = 64;
   gridSize = 50; // taille d'une case horizontale (px)
   timelineWidth = 1000;
+  coverImageUrl: string | null = null;
+
 
   midiNotes = Array.from({ length: 24 }, (_, i) => 71 - i);
 
@@ -68,6 +70,10 @@ export class ProjectViewComponent implements OnInit {
             this.tempo = project.tempo;
             this.key_signature = project.key_signature;
             this.loadNotes(this.projectId);
+
+            if (project.cover_image) {
+            this.loadCoverImage(project.cover_image);
+          }
 
             // Charger likes si utilisateur connecté
             if (this.isLoggedIn) {
@@ -135,6 +141,20 @@ async initializeAudio() {
   }));
 }
 
+loadCoverImage(fileId: string) {
+
+
+  this.projectService.getCoverImage(fileId).subscribe({
+    next: (res: any) => {
+      const fileData = res.data;
+
+      this.coverImageUrl = `http://127.0.0.1:8055/assets/${fileData.id}`;
+    },
+    error: (err) => {
+      console.error('Erreur chargement cover_image:', err);
+    }
+  });
+}
 
 
 async playAudio() {

@@ -96,7 +96,7 @@ export class ProjectEditComponent implements OnInit {
         if (project.cover_image) {
         this.existingCoverImage = project.cover_image;
 
-        this.projectService.getCoverImage(project.cover_image, token).subscribe((fileRes: any) => {
+        this.projectService.getCoverImage(project.cover_image).subscribe((fileRes: any) => {
           this.existingCoverUrl = fileRes.data?.full_url || null;
         });
       }
@@ -265,7 +265,7 @@ async updateProject() {
 
       // recharge l’image immédiatement
       if (coverId) {
-        this.projectService.getCoverImage(coverId, token).subscribe((fileRes: any) => {
+        this.projectService.getCoverImage(coverId).subscribe((fileRes: any) => {
           this.existingCoverUrl = fileRes.data?.full_url || null;
         });
       }

@@ -165,10 +165,8 @@ uploadFile(file: File, token: string) {
     });
   }
 
-  getFileById(fileId: string, token: string) {
-  return this.http.get(`${this.baseUrl}/files/${fileId}`, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
+  getFileById(fileId: string) {
+  return this.http.get(`${this.baseUrl}/files/${fileId}`);
 }
 
   }
