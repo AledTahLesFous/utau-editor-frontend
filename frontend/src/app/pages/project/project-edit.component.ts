@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AppHeaderComponent } from '../../shared/components/app-header.component';
 import { NoteComponent } from '../note/note.component';
-import { ProjectService } from '../../shared/services/project.service'; // <-- à créer/importer
+import { ProjectService } from '../../shared/services/project.service';
 import * as Tone from 'tone';
 
 @Component({
@@ -16,7 +16,7 @@ import * as Tone from 'tone';
 export class ProjectEditComponent implements OnInit {
   title = '';
   description = '';
-  tempo: number = 120; // par défaut
+  tempo: number = 120;
   key_signature = '';
   duration = 0;
   durationEdit = 0;
@@ -24,23 +24,35 @@ export class ProjectEditComponent implements OnInit {
   message = '';
   editMode = false;
   isLoggedIn = false;
+
   moveMode = false;
   addMode = true;
   deleteMode = false;
+
   timelineWidth = 1000;
   zoomFactor = 5;
+
   readonly lowestPitch = 48;
   readonly highestPitch = 71;
-  gridSize = 50; // taille d'une case horizontale (px)
+
+  gridSize = 50;
   labelsWidth = 64;
   voicebank = '';
 
+  existingCoverImage: any = null;
+  existingCoverUrl: string | null = null;
+  newCoverFile: File | null = null;
+
   readonly noteHeight = 25;
   readonly timeStep = 50;
+
   midiNotes = Array.from({ length: 24 }, (_, i) => 71 - i);
+
   notes: any[] = [];
+
   phonemeBuffers: { [name: string]: AudioBuffer } = {};
   notePlayers: { name: string, startTime: number, pitch: number, velocity: number }[] = [];
+
   phonemes: any[] = [];
   selectedPhoneme: string = '';
 
@@ -54,7 +66,6 @@ export class ProjectEditComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    
     this.isLoggedIn = !!localStorage.getItem('token');
     const token = localStorage.getItem('token');
     if (!token) return;
@@ -71,15 +82,24 @@ export class ProjectEditComponent implements OnInit {
           this.message = 'Projet introuvable';
           return;
         }
-        
+
         this.projectId = project.id;
         this.description = project.description;
         this.tempo = Number(project.tempo) || 120;
         this.key_signature = project.key_signature;
         this.duration = project.duration || 100;
         this.voicebank = project.primary_voicebank;
+
         this.durationEdit = this.duration;
-        this.status = project.status || 'draft'; // ✅ on récupère le status
+        this.status = project.status || 'draft';
+
+        if (project.cover_image) {
+        this.existingCoverImage = project.cover_image;
+
+        this.projectService.getCoverImage(project.cover_image, token).subscribe((fileRes: any) => {
+          this.existingCoverUrl = fileRes.data?.full_url || null;
+        });
+      }
 
         this.updateTimelineWidth();
 
@@ -105,6 +125,12 @@ export class ProjectEditComponent implements OnInit {
     this.addMode = !this.moveMode;
   }
 
+  onFileSelected(event: any) {
+    if (event.target.files && event.target.files.length > 0) {
+      this.newCoverFile = event.target.files[0];
+    }
+  }
+
   toggleDeleteMode() {
     this.deleteMode = !this.deleteMode;
   }
@@ -122,9 +148,8 @@ export class ProjectEditComponent implements OnInit {
   }
 
   getSecondsPerBeat(): number {
-  return 60 / this.tempo; // 1 temps (quarter note) en secondes
-}
-
+    return 60 / this.tempo;
+  }
 
   onNoteDeleted(note: any) {
     const token = localStorage.getItem('token');
@@ -156,43 +181,40 @@ export class ProjectEditComponent implements OnInit {
     }, token).subscribe();
   }
 
-onTimelineClick(event: MouseEvent) {
-  if (!this.addMode || !this.selectedPhoneme || !this.projectId) return;
+  onTimelineClick(event: MouseEvent) {
+    if (!this.addMode || !this.selectedPhoneme || !this.projectId) return;
 
-  const timelineEl = event.currentTarget as HTMLElement;
-  const rect = timelineEl.getBoundingClientRect();
+    const timelineEl = event.currentTarget as HTMLElement;
+    const rect = timelineEl.getBoundingClientRect();
+    const scrollLeft = timelineEl.scrollLeft;
 
-  // Ajouter scrollLeft pour tenir compte du scroll horizontal
-  const scrollLeft = timelineEl.scrollLeft;
+    const clickX = event.clientX - rect.left + scrollLeft - this.labelsWidth;
+    const snappedLeftPx = Math.round(clickX / this.gridSize) * this.gridSize;
 
-  const clickX = event.clientX - rect.left + scrollLeft - this.labelsWidth;
-  const snappedLeftPx = Math.round(clickX / this.gridSize) * this.gridSize;
+    const clickY = event.clientY - rect.top;
+    const snappedPitchIndex = Math.floor(clickY / this.noteHeight);
+    const snappedPitch = this.highestPitch - snappedPitchIndex;
 
-  const clickY = event.clientY - rect.top;
-  const snappedPitchIndex = Math.floor(clickY / this.noteHeight);
-  const snappedPitch = this.highestPitch - snappedPitchIndex;
+    const phoneme = this.phonemes.find(p => p.name === this.selectedPhoneme);
+    if (!phoneme) return;
 
-  const phoneme = this.phonemes.find(p => p.name === this.selectedPhoneme);
-  if (!phoneme) return;
+    const newNote = {
+      project_id: this.projectId,
+      start_time: snappedLeftPx * this.zoomFactor,
+      duration: this.gridSize * this.zoomFactor,
+      pitch: snappedPitch,
+      lyrics: this.selectedPhoneme,
+      voicebank_id: this.voicebank,
+      phoneme_id: phoneme.id,
+      order_index: this.notes.length,
+      left: snappedLeftPx,
+      top: snappedPitchIndex * this.noteHeight,
+      width: this.gridSize,
+      height: this.noteHeight
+    };
 
-  const newNote = {
-    project_id: this.projectId,
-    start_time: snappedLeftPx * this.zoomFactor,
-    duration: this.gridSize * this.zoomFactor,
-    pitch: snappedPitch,
-    lyrics: this.selectedPhoneme,
-    voicebank_id: this.voicebank,
-    phoneme_id: phoneme.id,
-    order_index: this.notes.length,
-    left: snappedLeftPx,
-    top: snappedPitchIndex * this.noteHeight,
-    width: this.gridSize,
-    height: this.noteHeight
-  };
-
-  this.addNote(newNote);
-}
-
+    this.addNote(newNote);
+  }
 
   addNote(newNote: any) {
     const token = localStorage.getItem('token');
@@ -213,29 +235,45 @@ onTimelineClick(event: MouseEvent) {
     });
   }
 
-  updateProject() {
-    const token = localStorage.getItem('token');
-    if (!token || !this.projectId) return;
+async updateProject() {
+  const token = localStorage.getItem('token');
+  if (!token || !this.projectId) return;
 
-    const data = {
-      description: this.description,
-      tempo: this.tempo,
-      key_signature: this.key_signature,
-      duration: this.durationEdit,
-      status: this.status, // ✅ Inclure le status dans la mise à jour
+  let coverId = this.existingCoverImage;
 
-    };
-
-    this.projectService.updateProjectById(this.projectId, data, token).subscribe({
-      next: () => {
-        this.duration = this.durationEdit;
-        this.updateTimelineWidth();
-        this.editMode = false;
-        this.message = 'Projet mis à jour avec succès !';
-      },
-      error: () => this.message = 'Erreur lors de la mise à jour'
-    });
+  // 📌 SI un nouveau fichier est sélectionné → upload d’abord
+  if (this.newCoverFile) {
+    const uploadRes: any = await this.projectService.uploadFile(this.newCoverFile, token).toPromise();
+    coverId = uploadRes.data.id;
   }
+
+  const data = {
+    description: this.description,
+    tempo: this.tempo,
+    key_signature: this.key_signature,
+    duration: this.durationEdit,
+    status: this.status,
+    cover_image: coverId   // ✅ mise à jour du fichier
+  };
+
+  this.projectService.updateProjectById(this.projectId, data, token).subscribe({
+    next: () => {
+      this.duration = this.durationEdit;
+      this.updateTimelineWidth();
+      this.editMode = false;
+      this.message = 'Projet mis à jour avec succès !';
+
+      // recharge l’image immédiatement
+      if (coverId) {
+        this.projectService.getCoverImage(coverId, token).subscribe((fileRes: any) => {
+          this.existingCoverUrl = fileRes.data?.full_url || null;
+        });
+      }
+    },
+    error: () => this.message = 'Erreur lors de la mise à jour'
+  });
+}
+
 
   cancelEdit() {
     this.editMode = false;
@@ -266,6 +304,7 @@ onTimelineClick(event: MouseEvent) {
         if (!this.notes.length) return;
 
         const phonemeIds = [...new Set(this.notes.map(n => n.phoneme_id))];
+
         this.projectService.getPhonemesByIds(phonemeIds).subscribe((phonemeRes) => {
           const phonemes = phonemeRes.data || [];
           this.notes.forEach(note => {
@@ -288,33 +327,35 @@ onTimelineClick(event: MouseEvent) {
     return (this.highestPitch - pitch) * this.noteHeight;
   }
 
-getNoteLeft(startTime: number) {
-  return startTime / this.zoomFactor; // OK
-}
-  getNoteWidth(duration: number) { return duration / this.zoomFactor; }
-
-async initializeAudio() {
-  if (!this.notes.length) return;
-
-  const phonemeNames = [...new Set(this.notes.map(n => n.phoneme?.name).filter(Boolean))];
-  for (const name of phonemeNames) {
-    const url = `http://127.0.0.1:8055/download-voicebank/${this.notes[0].voicebank_id}/sample-romaji/${name}`;
-    const res = await fetch(url);
-    const arrayBuffer = await res.arrayBuffer();
-    this.phonemeBuffers[name] = await Tone.context.decodeAudioData(arrayBuffer);
+  getNoteLeft(startTime: number) {
+    return startTime / this.zoomFactor;
   }
 
-  const secondsPerMs = 1 / 1000; // conversion ms → s
-  const secondsPerBeat = this.getSecondsPerBeat();
+  getNoteWidth(duration: number) {
+    return duration / this.zoomFactor;
+  }
 
-  this.notePlayers = this.notes.map(note => ({
-    name: note.phoneme.name,
-    startTime: (note.start_time * secondsPerMs) * (120 / this.tempo), // ajuste selon tempo
-    pitch: note.pitch,
-    velocity: note.velocity || 1
-  }));
-}
+  async initializeAudio() {
+    if (!this.notes.length) return;
 
+    const phonemeNames = [...new Set(this.notes.map(n => n.phoneme?.name).filter(Boolean))];
+
+    for (const name of phonemeNames) {
+      const url = `http://127.0.0.1:8055/download-voicebank/${this.notes[0].voicebank_id}/sample-romaji/${name}`;
+      const res = await fetch(url);
+      const arrayBuffer = await res.arrayBuffer();
+      this.phonemeBuffers[name] = await Tone.context.decodeAudioData(arrayBuffer);
+    }
+
+    const secondsPerMs = 1 / 1000;
+
+    this.notePlayers = this.notes.map(note => ({
+      name: note.phoneme.name,
+      startTime: (note.start_time * secondsPerMs) * (120 / this.tempo),
+      pitch: note.pitch,
+      velocity: note.velocity || 1
+    }));
+  }
 
   async playAudio() {
     if (!this.notePlayers.length) return;
@@ -327,8 +368,8 @@ async initializeAudio() {
       if (!buffer) return;
 
       const player = new Tone.Player(buffer).toDestination();
-      const semitoneDiff = n.pitch - 60;
       player.playbackRate = Math.pow(2, (n.pitch - 60) / 12);
+
       player.start(now + n.startTime, 0, buffer.duration * (120 / this.tempo));
     });
   }

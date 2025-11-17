@@ -67,6 +67,15 @@
           class="w-full p-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white/70 dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-400"
           (change)="updateTimelineWidth()"
         />
+
+        <label>Changer l'image de couverture :</label>
+<input type="file" (change)="onFileSelected($event)" class="form-control mb-2" />
+
+<div *ngIf="existingCoverUrl">
+  <p>Cover actuelle :</p>
+  <img [src]="existingCoverUrl" style="width:160px; border-radius:8px;">
+</div>
+
       </div>
 
 

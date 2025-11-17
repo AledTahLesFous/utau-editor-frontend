@@ -88,4 +88,10 @@ deleteProject(projectId: string, token: string) {
   return this.api.deleteProjectById(projectId, token);
   }
 
+  // project.service.ts
+getCoverImage(fileId: string, token: string) {
+  return this.api.getFileById(fileId, token);
+}
+
+
 }
