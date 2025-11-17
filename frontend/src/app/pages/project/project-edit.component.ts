@@ -16,7 +16,7 @@ import * as Tone from 'tone';
 export class ProjectEditComponent implements OnInit {
   title = '';
   description = '';
-  tempo = '';
+  tempo: number = 120; // par défaut
   key_signature = '';
   duration = 0;
   durationEdit = 0;
@@ -53,6 +53,7 @@ export class ProjectEditComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    
     this.isLoggedIn = !!localStorage.getItem('token');
     const token = localStorage.getItem('token');
     if (!token) return;
@@ -69,10 +70,10 @@ export class ProjectEditComponent implements OnInit {
           this.message = 'Projet introuvable';
           return;
         }
-
+        
         this.projectId = project.id;
         this.description = project.description;
-        this.tempo = project.tempo;
+        this.tempo = Number(project.tempo) || 120;
         this.key_signature = project.key_signature;
         this.duration = project.duration || 100;
         this.durationEdit = this.duration;
@@ -117,6 +118,11 @@ export class ProjectEditComponent implements OnInit {
 
     this.notes = [];
   }
+
+  getSecondsPerBeat(): number {
+  return 60 / this.tempo; // 1 temps (quarter note) en secondes
+}
+
 
   onNoteDeleted(note: any) {
     const token = localStorage.getItem('token');
@@ -285,24 +291,28 @@ getNoteLeft(startTime: number) {
 }
   getNoteWidth(duration: number) { return duration / this.zoomFactor; }
 
-  async initializeAudio() {
-    if (!this.notes.length) return;
+async initializeAudio() {
+  if (!this.notes.length) return;
 
-    const phonemeNames = [...new Set(this.notes.map(n => n.phoneme?.name).filter(Boolean))];
-    for (const name of phonemeNames) {
-      const url = `http://127.0.0.1:8055/download-voicebank/${this.notes[0].voicebank_id}/sample-romaji/${name}`;
-      const res = await fetch(url);
-      const arrayBuffer = await res.arrayBuffer();
-      this.phonemeBuffers[name] = await Tone.context.decodeAudioData(arrayBuffer);
-    }
-
-    this.notePlayers = this.notes.map(note => ({
-      name: note.phoneme.name,
-      startTime: note.start_time / 1000,
-      pitch: note.pitch,
-      velocity: note.velocity || 1
-    }));
+  const phonemeNames = [...new Set(this.notes.map(n => n.phoneme?.name).filter(Boolean))];
+  for (const name of phonemeNames) {
+    const url = `http://127.0.0.1:8055/download-voicebank/${this.notes[0].voicebank_id}/sample-romaji/${name}`;
+    const res = await fetch(url);
+    const arrayBuffer = await res.arrayBuffer();
+    this.phonemeBuffers[name] = await Tone.context.decodeAudioData(arrayBuffer);
   }
+
+  const secondsPerMs = 1 / 1000; // conversion ms → s
+  const secondsPerBeat = this.getSecondsPerBeat();
+
+  this.notePlayers = this.notes.map(note => ({
+    name: note.phoneme.name,
+    startTime: (note.start_time * secondsPerMs) * (120 / this.tempo), // ajuste selon tempo
+    pitch: note.pitch,
+    velocity: note.velocity || 1
+  }));
+}
+
 
   async playAudio() {
     if (!this.notePlayers.length) return;
@@ -316,8 +326,8 @@ getNoteLeft(startTime: number) {
 
       const player = new Tone.Player(buffer).toDestination();
       const semitoneDiff = n.pitch - 60;
-      player.playbackRate = Math.pow(2, semitoneDiff / 12);
-      player.start(now + n.startTime);
+      player.playbackRate = Math.pow(2, (n.pitch - 60) / 12);
+      player.start(now + n.startTime, 0, buffer.duration * (120 / this.tempo));
     });
   }
 }
