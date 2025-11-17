@@ -33,6 +33,7 @@ export class ProjectEditComponent implements OnInit {
   readonly highestPitch = 71;
   gridSize = 50; // taille d'une case horizontale (px)
   labelsWidth = 64;
+  voicebank = '';
 
   readonly noteHeight = 25;
   readonly timeStep = 50;
@@ -76,6 +77,7 @@ export class ProjectEditComponent implements OnInit {
         this.tempo = Number(project.tempo) || 120;
         this.key_signature = project.key_signature;
         this.duration = project.duration || 100;
+        this.voicebank = project.primary_voicebank;
         this.durationEdit = this.duration;
         this.status = project.status || 'draft'; // ✅ on récupère le status
 
@@ -179,7 +181,7 @@ onTimelineClick(event: MouseEvent) {
     duration: this.gridSize * this.zoomFactor,
     pitch: snappedPitch,
     lyrics: this.selectedPhoneme,
-    voicebank_id: 'dcf322c1-9c36-45cd-8e07-cb08f791c361',
+    voicebank_id: this.voicebank,
     phoneme_id: phoneme.id,
     order_index: this.notes.length,
     left: snappedLeftPx,
