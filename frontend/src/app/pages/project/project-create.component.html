@@ -20,6 +20,11 @@
         class="w-full p-3 text-sm rounded-xl border border-gray-300 dark:border-gray-600 bg-white/70 dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-400"
       />
 
+      <select [(ngModel)]="primary_voicebank" name="primary_voicebank" class="input-field">
+  <option value="" disabled>Sélectionner un voicebank</option>
+  <option *ngFor="let vb of voicebanks" [value]="vb.id">{{ vb.name }}</option>
+</select>
+
       <!-- Bouton Advanced Settings -->
       <button
         type="button"
@@ -56,19 +61,7 @@
           class="w-full accent-emerald-400"
         />
 
-<select [(ngModel)]="primary_voicebank" name="primary_voicebank" class="input-field">
-  <option value="" disabled>Sélectionner un voicebank</option>
-  <option *ngFor="let vb of voicebanks" [value]="vb.id">{{ vb.name }}</option>
-</select>
 
-
-        <input
-          type="text"
-          [(ngModel)]="key_signature"
-          name="key_signature"
-          placeholder="Key signature"
-          class="w-full p-2 text-sm rounded-xl border border-gray-300 dark:border-gray-600 bg-white/70 dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-400"
-        />
       </div>
 
       <!-- Boutons -->

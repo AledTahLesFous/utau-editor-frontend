@@ -18,7 +18,7 @@ export class ProjectCreateComponent implements OnInit {
   name = '';
   description = '';
   tempo: number = 120;
-  key_signature = '';
+  key_signature = 'C';
   cover_image = '';
   status = '';
   tags = '';
