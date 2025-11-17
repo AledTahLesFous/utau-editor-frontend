@@ -111,45 +111,44 @@ export class ProjectViewComponent implements OnInit {
   back() { this.router.navigate(['']); }
 
   // ---------------- Audio Logic ----------------
-  async initializeAudio() {
-    if (!this.notes || this.notes.length === 0) return;
+async initializeAudio() {
+  if (!this.notes || this.notes.length === 0) return;
 
-    const phonemeNames = Array.from(new Set(this.notes.map(n => n.phoneme?.name).filter(Boolean)));
-
-    await Promise.all(phonemeNames.map(async name => {
-      const url = `http://127.0.0.1:8055/download-voicebank/${this.notes[0].voicebank_id}/sample-romaji/${name}`;
-      const res = await fetch(url);
-      if (!res.ok) throw new Error(`Échec chargement phoneme ${name}`);
-      const arrayBuffer = await res.arrayBuffer();
-      this.phonemeBuffers[name] = await Tone.context.decodeAudioData(arrayBuffer);
-    }));
-
-    this.notePlayers = [];
-    this.notes.forEach(note => {
-      if (!note.phoneme?.name) return;
-      this.notePlayers.push({
-        name: note.phoneme.name,
-        startTime: note.start_time / 1000,
-        pitch: note.pitch,
-        velocity: note.velocity || 1
-      });
-    });
+  const phonemeNames = Array.from(new Set(this.notes.map(n => n.phoneme?.name).filter(Boolean)));
+  for (const name of phonemeNames) {
+    const url = `http://127.0.0.1:8055/download-voicebank/${this.notes[0].voicebank_id}/sample-romaji/${name}`;
+    const res = await fetch(url);
+    const arrayBuffer = await res.arrayBuffer();
+    this.phonemeBuffers[name] = await Tone.context.decodeAudioData(arrayBuffer);
   }
 
-  async playAudio() {
-    if (!this.notePlayers.length) return;
+  const tempoFactor = 120 / Number(this.tempo); // <-- déclarée ici
+  this.notePlayers = this.notes.map(note => ({
+    name: note.phoneme.name,
+    startTime: (note.start_time / 1000) * tempoFactor,  // ajusté selon tempo
+    pitch: note.pitch,
+    velocity: note.velocity || 1
+  }));
+}
 
-    await Tone.start();
-    const now = Tone.now();
 
-    this.notePlayers.forEach(n => {
-      const buffer = this.phonemeBuffers[n.name];
-      if (!buffer) return;
-      const player = new Tone.Player(buffer).toDestination();
-      player.playbackRate = Math.pow(2, (n.pitch - 60) / 12);
-      player.start(now + n.startTime);
-    });
-  }
+
+async playAudio() {
+  if (!this.notePlayers.length) return;
+
+  await Tone.start();
+  const now = Tone.now();
+
+  this.notePlayers.forEach(n => {
+    const buffer = this.phonemeBuffers[n.name];
+    if (!buffer) return;
+    const player = new Tone.Player(buffer).toDestination();
+    const semitoneDiff = n.pitch - 60;
+    player.playbackRate = Math.pow(2, semitoneDiff / 12);
+    player.start(now + n.startTime); // n.startTime déjà ajusté
+  });
+}
+
 
   // ---------------- Likes Logic ----------------
   loadUserLike(userId: string) {
