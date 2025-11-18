@@ -38,7 +38,8 @@ export class ProjectEditComponent implements OnInit {
   gridSize = 50;
   labelsWidth = 64;
   voicebank = '';
-
+tagsOptions: any[] = [];        // liste des tags disponibles depuis Directus
+selectedTags: string[] = [];   
   existingCoverImage: any = null;
   existingCoverUrl: string | null = null;
   newCoverFile: File | null = null;
@@ -75,6 +76,13 @@ export class ProjectEditComponent implements OnInit {
 
     this.title = projectName;
 
+    this.projectService.getTags(token).subscribe({
+  next: (res: any) => {
+    this.tagsOptions = res.data || [];
+  },
+  error: (err) => console.error('Erreur récupération des tags :', err)
+});
+
     this.projectService.getProjectByTitle(projectName, token).subscribe({
       next: (res) => {
         const project = res?.data?.[0];
@@ -89,6 +97,7 @@ export class ProjectEditComponent implements OnInit {
         this.key_signature = project.key_signature;
         this.duration = project.duration || 100;
         this.voicebank = project.primary_voicebank;
+        this.selectedTags = project.tags ? project.tags.map((t: any) => t.id) : [];
 
         this.durationEdit = this.duration;
         this.status = project.status || 'draft';
@@ -131,6 +140,16 @@ export class ProjectEditComponent implements OnInit {
     }
   }
 
+  onTagsChange(event: Event) {
+  const selectElement = event.target as HTMLSelectElement;
+  this.selectedTags = Array.from(selectElement.selectedOptions).map(option => option.value);
+}
+
+
+  getTagName(tagId: string): string {
+  const tag = this.tagsOptions.find(t => t.id === tagId);
+  return tag ? tag.name : '';
+}
   toggleDeleteMode() {
     this.deleteMode = !this.deleteMode;
   }
@@ -241,6 +260,9 @@ async updateProject() {
 
   let coverId = this.existingCoverImage;
 
+  
+
+
   // 📌 SI un nouveau fichier est sélectionné → upload d’abord
   if (this.newCoverFile) {
     const uploadRes: any = await this.projectService.uploadFile(this.newCoverFile, token).toPromise();
@@ -253,6 +275,8 @@ async updateProject() {
     key_signature: this.key_signature,
     duration: this.durationEdit,
     status: this.status,
+    tags: this.selectedTags,   // ✅ envoie des tags sélectionnés
+
     cover_image: coverId   // ✅ mise à jour du fichier
   };
 

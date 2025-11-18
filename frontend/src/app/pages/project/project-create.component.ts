@@ -102,7 +102,7 @@ createProject() {
 
   if (this.selectedTags.length > 0) {
     // Envoie des IDs pour la relation many-to-many
-    projectData.test = this.selectedTags;
+    projectData.tags = this.selectedTags;
   }
 
   if (this.coverFile) {
