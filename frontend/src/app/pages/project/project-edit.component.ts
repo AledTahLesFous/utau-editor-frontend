@@ -38,8 +38,8 @@ export class ProjectEditComponent implements OnInit {
   gridSize = 50;
   labelsWidth = 64;
   voicebank = '';
-tagsOptions: any[] = [];        // liste des tags disponibles depuis Directus
-selectedTags: string[] = [];   
+  tagsOptions: any[] = [];        // liste des tags disponibles depuis Directus
+  selectedTags: string[] = [];   
   existingCoverImage: any = null;
   existingCoverUrl: string | null = null;
   newCoverFile: File | null = null;
@@ -97,7 +97,17 @@ selectedTags: string[] = [];
         this.key_signature = project.key_signature;
         this.duration = project.duration || 100;
         this.voicebank = project.primary_voicebank;
-        this.selectedTags = project.tags ? project.tags.map((t: any) => t.id) : [];
+// Vérifie si project.tags est un tableau
+if (Array.isArray(project.tags)) {
+  this.selectedTags = project.tags.map((t: any) => t.id);
+} 
+// Vérifie si project.tags.data existe
+else if (project.tags && Array.isArray(project.tags.data)) {
+  this.selectedTags = project.tags.data.map((t: any) => t.id);
+} 
+else {
+  this.selectedTags = [];
+}
 
         this.durationEdit = this.duration;
         this.status = project.status || 'draft';
@@ -275,7 +285,7 @@ async updateProject() {
     key_signature: this.key_signature,
     duration: this.durationEdit,
     status: this.status,
-    tags: this.selectedTags,   // ✅ envoie des tags sélectionnés
+  tags: this.selectedTags.map(id => ({ tags_id: id })),
 
     cover_image: coverId   // ✅ mise à jour du fichier
   };

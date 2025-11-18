@@ -19,6 +19,9 @@ export class ProjectViewComponent implements OnInit {
   description = '';
   tempo = '';
   key_signature = '';
+  projectTags: any[] = []; // tags assignés à ce projet
+tagsOptions: any[] = []; // liste de tous les tags disponibles
+
   message = '';
   editMode = false;
   isLoggedIn = false;
@@ -74,6 +77,20 @@ export class ProjectViewComponent implements OnInit {
             if (project.cover_image) {
             this.loadCoverImage(project.cover_image);
           }
+
+          // Charger tous les tags disponibles
+this.projectService.getTags(localStorage.getItem('token') || '').subscribe({
+  next: (res: any) => {
+    this.tagsOptions = res.data || [];
+
+    // Si le projet a déjà des tags, les associer
+    if (project.tags && project.tags.length) {
+      this.projectTags = this.tagsOptions.filter(tag => project.tags.map((t: any) => t.id).includes(tag.id));
+    }
+  },
+  error: (err) => console.error('Erreur récupération des tags :', err)
+});
+
 
             // Charger likes si utilisateur connecté
             if (this.isLoggedIn) {

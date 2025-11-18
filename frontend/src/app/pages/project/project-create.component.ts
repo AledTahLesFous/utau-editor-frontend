@@ -93,17 +93,13 @@ createProject() {
   const projectData: any = {
     title: this.name,
     user_created: this.currentUserId,
-    primary_voicebank: this.primary_voicebank
+    primary_voicebank: this.primary_voicebank,
+    tags: this.selectedTags.map(id => ({ tags_id: id })) // relation many-to-many
   };
 
   if (this.description?.trim()) projectData.description = this.description;
   if (this.tempo) projectData.tempo = this.tempo;
   if (this.key_signature?.trim()) projectData.key_signature = this.key_signature;
-
-  if (this.selectedTags.length > 0) {
-    // Envoie des IDs pour la relation many-to-many
-    projectData.tags = this.selectedTags;
-  }
 
   if (this.coverFile) {
     this.projectService.uploadFile(this.coverFile, token).subscribe({
@@ -120,6 +116,7 @@ createProject() {
     this.submitProject(projectData, token);
   }
 }
+
 
 getTagName(tagId: string): string {
   const tag = this.tagsOptions.find(t => t.id === tagId);
