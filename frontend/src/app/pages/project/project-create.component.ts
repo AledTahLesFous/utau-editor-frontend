@@ -22,7 +22,8 @@ export class ProjectCreateComponent implements OnInit {
   duration = 100;
   coverFile: File | null = null; // fichier sélectionné
   status = '';
-  tags = '';
+tagsOptions: any[] = [];        // liste des tags disponibles depuis Directus
+selectedTags: string[] = [];   
 
   // ✅ La liste complète des voicebanks
   voicebanks: any[] = [];
@@ -52,12 +53,18 @@ export class ProjectCreateComponent implements OnInit {
     this.projectService.getVoicebanks(token).subscribe({
       next: (response: any) => {
         this.voicebanks = response.data; // stocke toutes les voicebanks
-        console.log('Voicebanks:', this.voicebanks);
       },
       error: (err) => {
         console.error('Erreur lors du chargement des voicebanks:', err);
       }
     });
+
+this.projectService.getTags(token).subscribe({
+  next: (res: any) => {
+    this.tagsOptions = res.data || [];
+  },
+  error: (err) => console.error('Erreur récupération des tags :', err)
+});
 
     // Récupérer l'utilisateur connecté
     this.authService.getMe(token).subscribe({
@@ -93,11 +100,14 @@ createProject() {
   if (this.tempo) projectData.tempo = this.tempo;
   if (this.key_signature?.trim()) projectData.key_signature = this.key_signature;
 
+  if (this.selectedTags.length > 0) {
+    // Envoie des IDs pour la relation many-to-many
+    projectData.test = this.selectedTags;
+  }
+
   if (this.coverFile) {
-    // 1️⃣ uploader le fichier
     this.projectService.uploadFile(this.coverFile, token).subscribe({
       next: (res: any) => {
-        // res.data.id contient l'UUID du fichier
         projectData.cover_image = res.data.id;
         this.submitProject(projectData, token);
       },
@@ -110,6 +120,12 @@ createProject() {
     this.submitProject(projectData, token);
   }
 }
+
+getTagName(tagId: string): string {
+  const tag = this.tagsOptions.find(t => t.id === tagId);
+  return tag ? tag.name : '';
+}
+
 
 private submitProject(projectData: any, token: string) {
   this.projectService.createProject(projectData, token).subscribe({

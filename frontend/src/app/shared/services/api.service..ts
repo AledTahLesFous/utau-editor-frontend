@@ -169,4 +169,11 @@ uploadFile(file: File, token: string) {
   return this.http.get(`${this.baseUrl}/files/${fileId}`);
 }
 
+getTags(token: string) {
+  return this.http.get(`${this.baseUrl}/items/tags`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+}
+
+
   }

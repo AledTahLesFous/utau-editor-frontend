@@ -42,6 +42,7 @@
 
 
 
+
       <!-- Bouton Advanced Settings -->
       <button
         type="button"
@@ -50,6 +51,25 @@
       >
         {{ showAdvanced ? 'Masquer les paramètres avancés' : 'Advanced Settings' }}
       </button>
+
+
+<!-- Tags -->
+<label class="text-sm font-medium text-gray-900 dark:text-white">Tags</label>
+<select
+  [(ngModel)]="selectedTags"
+  name="tags"
+  multiple
+  class="w-full p-2 text-sm rounded-xl border border-gray-300 dark:border-gray-600 bg-white/70 dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-400"
+>
+  <option *ngFor="let tag of tagsOptions" [value]="tag.id">{{ tag.name }}</option>
+</select>
+
+<!-- Affichage des tags sélectionnés -->
+<div class="flex flex-wrap gap-2 mt-1">
+  <span *ngFor="let tagId of selectedTags" class="px-2 py-1 bg-emerald-400 text-white text-xs rounded-full">
+    {{ getTagName(tagId) }}
+  </span>
+</div>
 
       
 

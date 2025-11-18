@@ -92,6 +92,9 @@ deleteProject(projectId: string, token: string) {
 getCoverImage(fileId: string) {
   return this.api.getFileById(fileId);
 }
+getTags(token: string) {
+  return this.api.getTags(token);
+}
 
 
 }
