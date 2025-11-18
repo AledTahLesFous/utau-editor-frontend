@@ -2,6 +2,8 @@
   import { HttpClient } from '@angular/common/http';
   import { Observable } from 'rxjs';
   import { Projet } from '../interfaces/project.interface'; // adapte aussi
+  import { Tags } from '../interfaces/tags.interface';
+  import { environment } from '../../../environments/environment.development'; 
 
   @Injectable({
     providedIn: 'root'
@@ -169,11 +171,7 @@ uploadFile(file: File, token: string) {
   return this.http.get(`${this.baseUrl}/files/${fileId}`);
 }
 
-getTags(token: string) {
-  return this.http.get(`${this.baseUrl}/items/tags`, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
+getTags(): Observable<{ data: Tags[] }> {
+  return this.http.get<{ data: Tags[] }>(`${environment.directusApiUrl}/tags`);
 }
-
-
   }

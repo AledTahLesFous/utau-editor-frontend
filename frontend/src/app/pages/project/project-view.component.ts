@@ -73,24 +73,26 @@ tagsOptions: any[] = []; // liste de tous les tags disponibles
             this.tempo = project.tempo;
             this.key_signature = project.key_signature;
             this.loadNotes(this.projectId);
+            console.log(project); // devrait afficher un tableau maintenant
 
             if (project.cover_image) {
             this.loadCoverImage(project.cover_image);
           }
 
           // Charger tous les tags disponibles
-this.projectService.getTags(localStorage.getItem('token') || '').subscribe({
+// Charger tous les tags disponibles
+this.projectService.getTags().subscribe({
   next: (res: any) => {
     this.tagsOptions = res.data || [];
 
-    // Si le projet a déjà des tags, les associer
-    if (project.tags && project.tags.length) {
-      this.projectTags = this.tagsOptions.filter(tag => project.tags.map((t: any) => t.id).includes(tag.id));
-    }
+    // Si ton projet a une liste d'IDs de tags (ex: [6,7])
+    const projectTagIds = project.tag_ids || []; // ou comment tu stockes les IDs dans le projet
+
+    // Filtrer les tags qui correspondent à ce projet
+    this.projectTags = this.tagsOptions.filter(tag => projectTagIds.includes(tag.id));
   },
   error: (err) => console.error('Erreur récupération des tags :', err)
 });
-
 
             // Charger likes si utilisateur connecté
             if (this.isLoggedIn) {

@@ -22,8 +22,8 @@ export class ProjectCreateComponent implements OnInit {
   duration = 100;
   coverFile: File | null = null; // fichier sélectionné
   status = '';
-tagsOptions: any[] = [];        // liste des tags disponibles depuis Directus
-selectedTags: string[] = [];   
+  tagsOptions: any[] = [];        // liste des tags disponibles depuis Directus
+  selectedTags: string[] = [];   
 
   // ✅ La liste complète des voicebanks
   voicebanks: any[] = [];
@@ -59,7 +59,7 @@ selectedTags: string[] = [];
       }
     });
 
-this.projectService.getTags(token).subscribe({
+this.projectService.getTags().subscribe({
   next: (res: any) => {
     this.tagsOptions = res.data || [];
   },

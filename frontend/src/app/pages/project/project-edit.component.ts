@@ -76,7 +76,7 @@ export class ProjectEditComponent implements OnInit {
 
     this.title = projectName;
 
-    this.projectService.getTags(token).subscribe({
+    this.projectService.getTags().subscribe({
   next: (res: any) => {
     this.tagsOptions = res.data || [];
   },
