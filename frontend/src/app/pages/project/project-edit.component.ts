@@ -25,6 +25,10 @@ export class ProjectEditComponent implements OnInit {
   editMode = false;
   isLoggedIn = false;
 
+  // TAGS
+  tagsOptions: any[] = [];
+  selectedTags: number[] = [];
+
   moveMode = false;
   addMode = true;
   deleteMode = false;
@@ -38,8 +42,7 @@ export class ProjectEditComponent implements OnInit {
   gridSize = 50;
   labelsWidth = 64;
   voicebank = '';
-  tagsOptions: any[] = [];        // liste des tags disponibles depuis Directus
-  selectedTags: string[] = [];   
+
   existingCoverImage: any = null;
   existingCoverUrl: string | null = null;
   newCoverFile: File | null = null;
@@ -76,12 +79,10 @@ export class ProjectEditComponent implements OnInit {
 
     this.title = projectName;
 
+    // Charger la liste des tags
     this.projectService.getTags().subscribe({
-  next: (res: any) => {
-    this.tagsOptions = res.data || [];
-  },
-  error: (err) => console.error('Erreur récupération des tags :', err)
-});
+      next: (res: any) => this.tagsOptions = res.data || []
+    });
 
     this.projectService.getProjectByTitle(projectName, token).subscribe({
       next: (res) => {
@@ -97,35 +98,26 @@ export class ProjectEditComponent implements OnInit {
         this.key_signature = project.key_signature;
         this.duration = project.duration || 100;
         this.voicebank = project.primary_voicebank;
-// Vérifie si project.tags est un tableau
-if (Array.isArray(project.tags)) {
-  this.selectedTags = project.tags.map((t: any) => t.id);
-} 
-// Vérifie si project.tags.data existe
-else if (project.tags && Array.isArray(project.tags.data)) {
-  this.selectedTags = project.tags.data.map((t: any) => t.id);
-} 
-else {
-  this.selectedTags = [];
-}
 
         this.durationEdit = this.duration;
         this.status = project.status || 'draft';
 
-        if (project.cover_image) {
-        this.existingCoverImage = project.cover_image;
+        // Charger les TAGS du projet
+        this.selectedTags = project.tags ? project.tags.map((t: any) => t.id) : [];
 
-        this.projectService.getCoverImage(project.cover_image).subscribe((fileRes: any) => {
-          this.existingCoverUrl = fileRes.data?.full_url || null;
-        });
-      }
+        // COVER
+        if (project.cover_image) {
+          this.existingCoverImage = project.cover_image;
+
+          this.projectService.getCoverImage(project.cover_image).subscribe((fileRes: any) => {
+            this.existingCoverUrl = fileRes.data?.full_url || null;
+          });
+        }
 
         this.updateTimelineWidth();
 
         if (project.duration) {
           this.timelineWidth = project.duration / this.zoomFactor + 200;
-        } else {
-          this.timelineWidth = 1000;
         }
 
         this.loadNotes(this.projectId);
@@ -134,6 +126,23 @@ else {
       error: () => this.message = 'Erreur lors de la récupération du projet'
     });
   }
+
+  // --------------------------------------
+  // TAGS
+  // --------------------------------------
+  getTagName(id: number) {
+    const tag = this.tagsOptions.find(t => t.id === id);
+    return tag ? tag.name : '';
+  }
+
+  onTagsChange(event: any) {
+    const selectedOptions = Array.from(event.target.selectedOptions);
+    this.selectedTags = selectedOptions.map((opt: any) => Number(opt.value));
+  }
+
+  // --------------------------------------
+  // TIMELINE / GRAPHISME
+  // --------------------------------------
 
   updateTimelineWidth() {
     this.timelineWidth = this.duration > 0 ? this.duration * 10 : 1000;
@@ -150,16 +159,6 @@ else {
     }
   }
 
-  onTagsChange(event: Event) {
-  const selectElement = event.target as HTMLSelectElement;
-  this.selectedTags = Array.from(selectElement.selectedOptions).map(option => option.value);
-}
-
-
-  getTagName(tagId: string): string {
-  const tag = this.tagsOptions.find(t => t.id === tagId);
-  return tag ? tag.name : '';
-}
   toggleDeleteMode() {
     this.deleteMode = !this.deleteMode;
   }
@@ -264,50 +263,47 @@ else {
     });
   }
 
-async updateProject() {
-  const token = localStorage.getItem('token');
-  if (!token || !this.projectId) return;
+  // --------------------------------------
+  // UPDATE PROJECT
+  // --------------------------------------
 
-  let coverId = this.existingCoverImage;
+  async updateProject() {
+    const token = localStorage.getItem('token');
+    if (!token || !this.projectId) return;
 
-  
+    let coverId = this.existingCoverImage;
 
+    if (this.newCoverFile) {
+      const uploadRes: any = await this.projectService.uploadFile(this.newCoverFile, token).toPromise();
+      coverId = uploadRes.data.id;
+    }
 
-  // 📌 SI un nouveau fichier est sélectionné → upload d’abord
-  if (this.newCoverFile) {
-    const uploadRes: any = await this.projectService.uploadFile(this.newCoverFile, token).toPromise();
-    coverId = uploadRes.data.id;
+    const data = {
+      description: this.description,
+      tempo: this.tempo,
+      key_signature: this.key_signature,
+      duration: this.durationEdit,
+      status: this.status,
+      cover_image: coverId,
+      tags: this.selectedTags   // <-- IMPORTANT
+    };
+
+    this.projectService.updateProjectById(this.projectId, data, token).subscribe({
+      next: () => {
+        this.duration = this.durationEdit;
+        this.updateTimelineWidth();
+        this.editMode = false;
+        this.message = 'Projet mis à jour avec succès !';
+
+        if (coverId) {
+          this.projectService.getCoverImage(coverId).subscribe((fileRes: any) => {
+            this.existingCoverUrl = fileRes.data?.full_url || null;
+          });
+        }
+      },
+      error: () => this.message = 'Erreur lors de la mise à jour'
+    });
   }
-
-  const data = {
-    description: this.description,
-    tempo: this.tempo,
-    key_signature: this.key_signature,
-    duration: this.durationEdit,
-    status: this.status,
-  tags: this.selectedTags.map(id => ({ tags_id: id })),
-
-    cover_image: coverId   // ✅ mise à jour du fichier
-  };
-
-  this.projectService.updateProjectById(this.projectId, data, token).subscribe({
-    next: () => {
-      this.duration = this.durationEdit;
-      this.updateTimelineWidth();
-      this.editMode = false;
-      this.message = 'Projet mis à jour avec succès !';
-
-      // recharge l’image immédiatement
-      if (coverId) {
-        this.projectService.getCoverImage(coverId).subscribe((fileRes: any) => {
-          this.existingCoverUrl = fileRes.data?.full_url || null;
-        });
-      }
-    },
-    error: () => this.message = 'Erreur lors de la mise à jour'
-  });
-}
-
 
   cancelEdit() {
     this.editMode = false;
@@ -317,6 +313,10 @@ async updateProject() {
   back() {
     this.router.navigate(['/projects']);
   }
+
+  // --------------------------------------
+  // PHONEMES
+  // --------------------------------------
 
   fetchPhonemes() {
     this.projectService.getAllPhonemes().subscribe({
@@ -328,6 +328,10 @@ async updateProject() {
       }
     });
   }
+
+  // --------------------------------------
+  // NOTES
+  // --------------------------------------
 
   loadNotes(projectId: string) {
     this.projectService.getNotesByProject(projectId).subscribe({
@@ -348,6 +352,10 @@ async updateProject() {
       }
     });
   }
+
+  // --------------------------------------
+  // AUDIO
+  // --------------------------------------
 
   snapStartTime(rawTime: number) {
     return Math.round(rawTime / this.timeStep) * this.timeStep;
