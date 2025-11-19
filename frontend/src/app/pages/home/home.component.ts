@@ -15,6 +15,7 @@ import { OnInit } from '@angular/core';
 export class HomeComponent implements OnInit {
   isLoggedIn = !!localStorage.getItem('token');
   projets: Projet[] = [];
+  projectCovers: { [projectId: string]: string | null } = {};
   loading = true;
   error: string | null = null;
 
@@ -25,6 +26,20 @@ export class HomeComponent implements OnInit {
     this.projectService.getProjects().subscribe({
       next: (response) => {
         this.projets = response.data;
+        // Charger les cover images pour chaque projet
+        this.projets.forEach(project => {
+          if (project.cover_image) {
+            this.projectService.getCoverImage(project.cover_image).subscribe({
+              next: (res: any) => {
+                const fileData = res.data;
+                this.projectCovers[project.id] = `http://localhost:8055/assets/${fileData.id}`;
+              },
+              error: () => {
+                this.projectCovers[project.id] = null;
+              }
+            });
+          }
+        });
         this.loading = false;
       },
       error: (err) => {
