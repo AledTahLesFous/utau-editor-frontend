@@ -59,6 +59,7 @@
 <label class="text-sm font-medium text-gray-900 dark:text-white mt-4">Tags</label>
 <select
   [(ngModel)]="selectedTags"
+  (change)="onTagsSelectChange()"
   multiple
   size="4"
   class="w-full p-2 text-sm rounded-xl border border-gray-300 dark:border-gray-600 bg-white/70 dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-400 cursor-pointer"
@@ -70,9 +71,9 @@
 
 <!-- Affichage des tags sélectionnés -->
 <div class="flex flex-wrap gap-2 mt-3">
-  <span *ngFor="let tagId of selectedTags" class="px-3 py-1 bg-emerald-400 text-white text-xs rounded-full flex items-center gap-1">
-    {{ getTagName(tagId) }}
-    <button type="button" (click)="removeTag(tagId)" class="hover:opacity-70 font-bold">×</button>
+  <span *ngFor="let tagData of selectedTagsWithNames" class="px-3 py-1 bg-emerald-400 text-white text-xs rounded-full flex items-center gap-1">
+    {{ tagData.name }}
+    <button type="button" (click)="removeTag(tagData.id)" class="hover:opacity-70 font-bold">×</button>
   </span>
   <span *ngIf="selectedTags.length === 0" class="text-gray-500 text-xs italic">Aucun tag sélectionné</span>
 </div>

@@ -28,6 +28,7 @@ export class ProjectEditComponent implements OnInit {
   // TAGS
   tagsOptions: any[] = [];
   selectedTags: any[] = [];
+  selectedTagsWithNames: any[] = [];  // Stocke {id, name}
 
   moveMode = false;
   addMode = true;
@@ -104,11 +105,27 @@ export class ProjectEditComponent implements OnInit {
         this.durationEdit = this.duration;
         this.status = project.status || 'draft';
 
-        // Charger les TAGS du projet
+        // Charger les TAGS du projet - structure: [{tags_id: {id, name}}]
         if (project.tags && Array.isArray(project.tags)) {
-          this.selectedTags = project.tags.map((t: any) => typeof t === 'object' ? t.id : t);
+          this.selectedTags = project.tags.map((t: any) => {
+            // Si c'est la structure tags_id, extraire l'ID du tag
+            if (t.tags_id && typeof t.tags_id === 'object') {
+              return t.tags_id.id;
+            }
+            // Sinon retourner directement
+            return t.id || t;
+          });
+          
+          // Stocker aussi les noms pour l'affichage
+          this.selectedTagsWithNames = project.tags.map((t: any) => {
+            if (t.tags_id && typeof t.tags_id === 'object') {
+              return t.tags_id;
+            }
+            return t;
+          });
         } else {
           this.selectedTags = [];
+          this.selectedTagsWithNames = [];
         }
 
         // COVER
@@ -137,12 +154,26 @@ export class ProjectEditComponent implements OnInit {
   // TAGS
   // --------------------------------------
   getTagName(id: any) {
+    // D'abord chercher dans les tags du projet avec leurs noms
+    const tagWithName = this.selectedTagsWithNames.find(t => t.id === id);
+    if (tagWithName) return tagWithName.name;
+    
+    // Sinon chercher dans tagsOptions
     const tag = this.tagsOptions.find(t => t.id === id);
-    return tag ? tag.name : '';
+    return tag ? tag.name : 'Tag inconnu';
   }
 
   removeTag(tagId: any) {
     this.selectedTags = this.selectedTags.filter(t => t !== tagId);
+    this.selectedTagsWithNames = this.selectedTagsWithNames.filter(t => t.id !== tagId);
+  }
+
+  onTagsSelectChange() {
+    // Synchroniser selectedTagsWithNames avec tagsOptions quand le select change
+    this.selectedTagsWithNames = this.selectedTags.map(tagId => {
+      const tag = this.tagsOptions.find(t => t.id === tagId);
+      return tag || { id: tagId, name: 'Tag inconnu' };
+    });
   }
 
   // --------------------------------------
