@@ -1,104 +1,146 @@
 <app-header [isLoggedIn]="isLoggedIn"></app-header>
 
-<div class="relative w-full min-h-screen px-6 py-12 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800 text-center overflow-hidden">
-
-  <!-- Projet Info Card -->
-  <div class="relative max-w-lg mx-auto mt-12 text-center font-sans p-6 rounded-3xl shadow-2xl bg-white/20 backdrop-blur-2xl border border-white/30">
-    <h2 class="text-3xl font-extrabold text-gray-900 dark:text-white mb-6">Projet: {{ title }}</h2>
-
-    <div *ngIf="message" class="bg-red-500 text-white px-4 py-2 rounded-xl shadow mb-4 animate-fade-in-out">
-      {{ message }}
-    </div>
-    <div class="w-full flex justify-center mt-8" *ngIf="coverImageUrl">
-  <img [src]="coverImageUrl"
-       alt="Cover Image"
-       class="rounded-2xl shadow-xl max-h-64 object-cover border border-white/40 backdrop-blur-xl" />
-</div>
-
-
-    <div *ngIf="!message" class="flex flex-col gap-4 bg-white/30 backdrop-blur-sm p-6 rounded-2xl shadow-md">
-      <p class="mb-2 text-gray-900 dark:text-white"><strong>Description:</strong> {{ description || '—' }}</p>
-      <p class="mb-2 text-gray-900 dark:text-white"><strong>Tempo:</strong> {{ tempo || 120 }}</p>
-      <p class="mb-4 text-gray-900 dark:text-white"><strong>Key signature:</strong> {{ key_signature || '—' }}</p>
-      
-      <!-- Tags -->
-      <div class="flex flex-wrap gap-2 mt-2">
-        <span *ngFor="let tag of tags" class="px-3 py-1 bg-emerald-400 text-white text-xs rounded-full font-semibold">
-          {{ tag.name }}
-        </span>
-        <span *ngIf="tags.length === 0" class="text-gray-500 text-xs italic">Aucun tag</span>
-      </div>
-    </div>
-
-    <button (click)="back()"
-      class="mt-6 px-4 py-2 rounded-xl font-semibold shadow text-white hover:scale-105 transition-all duration-300 bg-gradient-to-r from-gray-500 to-gray-600 text-sm">
-      Retour
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800">
+  
+  <!-- Header with back button -->
+  <div class="max-w-7xl mx-auto px-6 py-6">
+    <button (click)="back()" class="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+      </svg>
+      <span>Retour</span>
     </button>
   </div>
 
-  <!-- Timeline -->
-  <div class="mt-12 relative overflow-x-auto overflow-y-hidden border border-gray-300 rounded-lg shadow bg-gray-50 dark:bg-gray-900"
-       [style.height.px]="noteHeight * midiNotes.length">
+  <!-- Project Info Section -->
+  <div class="max-w-7xl mx-auto px-6 py-8">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-lg overflow-hidden border border-slate-200 dark:border-slate-700">
+      <div class="grid md:grid-cols-3 gap-8 p-8">
+        <!-- Cover Image -->
+        <div class="md:col-span-1 flex flex-col items-center justify-center">
+          <div class="w-full aspect-square rounded-xl overflow-hidden bg-gradient-to-br from-slate-300 to-slate-400 dark:from-slate-700 dark:to-slate-600 shadow-lg">
+            <img *ngIf="coverImageUrl" 
+                 [src]="coverImageUrl"
+                 alt="{{ title }}"
+                 class="w-full h-full object-cover"
+            />
+            <div *ngIf="!coverImageUrl" class="w-full h-full flex items-center justify-center">
+              <svg class="w-16 h-16 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
 
-    <!-- Pitch Labels -->
-    <div class="absolute left-0 top-0 h-full z-10 pitch-labels"
-         [style.width.px]="labelsWidth">
-      <div *ngFor="let n of midiNotes; let i = index"
-           [style.height.px]="noteHeight"
-           class="text-xs text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700 flex items-center justify-start px-1">
-        {{ n }}
-      </div>
-    </div>
+        <!-- Project Details -->
+        <div class="md:col-span-2 flex flex-col justify-between">
+          <div>
+            <h1 class="text-4xl font-bold text-slate-900 dark:text-white mb-4">{{ title }}</h1>
+            <p class="text-lg text-slate-600 dark:text-slate-400 mb-6 leading-relaxed">{{ description || '—' }}</p>
 
+            <!-- Metadata Grid -->
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-6 mb-6 pb-6 border-b border-slate-200 dark:border-slate-700">
+              <div>
+                <p class="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">Tempo</p>
+                <p class="text-2xl font-bold text-slate-900 dark:text-white">{{ tempo || 120 }} BPM</p>
+              </div>
+              <div>
+                <p class="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">Key Signature</p>
+                <p class="text-2xl font-bold text-slate-900 dark:text-white">{{ key_signature || '—' }}</p>
+              </div>
+              <div>
+                <p class="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">Likes</p>
+                <p class="text-2xl font-bold text-slate-900 dark:text-white">{{ likesCount }}</p>
+              </div>
+            </div>
 
+            <!-- Tags -->
+            <div *ngIf="tags.length > 0">
+              <p class="text-sm font-medium text-slate-500 dark:text-slate-400 mb-3">Tags</p>
+              <div class="flex flex-wrap gap-2">
+                <ng-container *ngFor="let tag of tags">
+                  <span *ngIf="tag?.name" class="px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-sm font-medium">
+                    {{ tag.name }}
+                  </span>
+                </ng-container>
+              </div>
+            </div>
+          </div>
 
-
-
-
-    <!-- Grid -->
-    <div class="absolute top-0 h-full pointer-events-none grid-background"
-         [ngStyle]="{
-           'background-size': gridSize + 'px ' + noteHeight + 'px',
-           'left.px': labelsWidth,
-           'width.px': timelineWidth - labelsWidth,
-           'min-width.px': 1400
-         }"
-         [style.height.px]="noteHeight * midiNotes.length"></div>
-
-    <!-- Notes -->
-    <div class="timeline relative"
-         [style.height.px]="noteHeight * midiNotes.length"
-         [style.marginLeft.px]="labelsWidth"
-         [style.minWidth.px]="timelineWidth - labelsWidth">
-      <div *ngFor="let note of notes"
-           class="absolute text-xs font-semibold text-white bg-blue-500 rounded shadow"
-           [style.top.px]="getNoteY(note.pitch)"
-           [style.left.px]="getNoteLeft(note.start_time)"
-           [style.width.px]="getNoteWidth(note.duration)"
-           [style.height.px]="noteHeight">
-        {{ note.phoneme?.name || note.lyrics }}
+          <!-- Action Buttons -->
+          <div class="flex flex-wrap gap-3 mt-6">
+            <button (click)="toggleLike()" 
+                    class="px-6 py-3 rounded-lg font-semibold transition-all duration-300"
+                    [ngClass]="userLikeId ? 'bg-red-600 hover:bg-red-700 text-white' : 'bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-900 dark:text-white'">
+              {{ userLikeId ? '❤️' : '🤍' }} Like ({{ likesCount }})
+            </button>
+            <button (click)="initializeAudio()" class="px-6 py-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold transition-colors">
+              🔹 Initialize Audio
+            </button>
+            <button (click)="playAudio()" class="px-6 py-3 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold transition-colors">
+              ▶️ Play
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Actions audio + Like -->
-  <div class="mt-6 flex flex-wrap gap-4 justify-center">
-    <!-- Like Button -->
-    <button (click)="toggleLike()"
-            class="px-4 py-2 rounded-xl font-semibold shadow text-white hover:scale-105 transition-all duration-300"
-            [ngClass]="{'bg-red-500': userLikeId, 'bg-gray-500': !userLikeId}">
-      {{ userLikeId ? '❤️' : '🤍' }} Like ({{ likesCount }})
-    </button>
+  <!-- Timeline Section -->
+  <div class="max-w-7xl mx-auto px-6 py-8">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-lg overflow-hidden border border-slate-200 dark:border-slate-700">
+      <div class="p-8">
+        <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-6">Timeline</h2>
+        
+        <div class="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-700">
+          <div class="relative border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-900"
+               [style.height.px]="noteHeight * midiNotes.length"
+               (contextmenu)="$event.preventDefault()"
+          >
+            <!-- Grid Background -->
+            <div class="absolute top-0 h-full pointer-events-none grid-background"
+                 [ngStyle]="{
+                   'background-size': gridSize + 'px ' + noteHeight + 'px',
+                   'left.px': labelsWidth,
+                   'width.px': timelineWidth - labelsWidth,
+                   'min-width.px': 1400
+                 }"
+                 [style.height.px]="noteHeight * midiNotes.length"></div>
 
-    <!-- Audio Buttons -->
-    <button (click)="initializeAudio()"
-            class="px-4 py-2 rounded-xl font-semibold shadow text-white hover:scale-105 transition-all duration-300 bg-blue-500">
-      🔹 Initialiser Audio
-    </button>
+            <!-- Pitch Labels -->
+            <div class="absolute left-0 top-0 h-full z-10 pitch-labels bg-slate-100 dark:bg-slate-800 border-r border-slate-300 dark:border-slate-600"
+                 [style.width.px]="labelsWidth">
+              <div *ngFor="let n of midiNotes; let i = index"
+                   [style.height.px]="noteHeight"
+                   class="text-xs font-medium text-slate-700 dark:text-slate-300 border-b border-slate-200 dark:border-slate-700 flex items-center justify-center px-1">
+                {{ n }}
+              </div>
+            </div>
 
-    <button (click)="playAudio()"
-            class="px-4 py-2 rounded-xl font-semibold shadow text-white hover:scale-105 transition-all duration-300 bg-green-500">
-      ▶️ Play
-    </button>
+            <!-- Notes -->
+            <div class="timeline relative"
+                 [style.height.px]="noteHeight * midiNotes.length"
+                 [style.marginLeft.px]="labelsWidth"
+                 [style.minWidth.px]="timelineWidth - labelsWidth">
+              <div *ngFor="let note of notes"
+                   class="absolute text-xs font-semibold text-white bg-gradient-to-r from-blue-600 to-indigo-600 rounded shadow-md hover:shadow-lg transition-all"
+                   [style.top.px]="getNoteY(note.pitch)"
+                   [style.left.px]="getNoteLeft(note.start_time)"
+                   [style.width.px]="getNoteWidth(note.duration)"
+                   [style.height.px]="noteHeight">
+                {{ note.phoneme?.name || note.lyrics }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="message" class="max-w-7xl mx-auto px-6 py-4">
+    <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4">
+      <p class="text-red-800 dark:text-red-300 font-medium">{{ message }}</p>
+    </div>
   </div>
 </div>
