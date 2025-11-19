@@ -64,10 +64,8 @@ export class ProjectViewComponent implements OnInit {
 
     this.projectService.getProjectByTitle(projectName, token || '').subscribe({
       next: (res: any) => {
-        console.log('Projet reçu:', res);
         if (res.data && res.data.length > 0) {
           const project = res.data[0];
-          console.log('Tags du projet:', project.tags);
           this.projectId = project.id;
           this.title = project.title;
           this.description = project.description;
@@ -76,10 +74,8 @@ export class ProjectViewComponent implements OnInit {
           
           // Les tags sont maintenant directement inclus avec toutes leurs données
           if (project.tags && project.tags.length > 0) {
-            console.log('Tags reçus avec données complètes:', project.tags);
             // Extraire les objets tags_id
             this.tags = project.tags.map((tag: any) => tag.tags_id);
-            console.log('Tags transformés:', this.tags);
           }
           
           this.loadNotes(this.projectId);

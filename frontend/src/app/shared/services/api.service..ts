@@ -133,7 +133,6 @@ getUserLikeForProject(userId: string, projectId: string): Observable<any> {
 
 
 addLike(projectId: string, userId: string, token: string): Observable<any> {
-  console.log(projectId, userId);
   return this.http.post(`${this.baseUrl}/items/likes`, { project_id: projectId, user_id: userId }, {
     headers: { Authorization: `Bearer ${token}` }
   });
