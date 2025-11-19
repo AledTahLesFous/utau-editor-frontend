@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AppHeaderComponent } from '../../shared/components/app-header.component';
 import { AuthService } from '../../shared/services/auth.service';
+import { ProjectService } from '../../shared/services/project.service';
 
 @Component({
   selector: 'app-profile',
@@ -17,9 +18,12 @@ export class ProfileComponent implements OnInit {
   error: string | null = null;
   editing = false;
   successMessage: string | null = null;
+  avatarUrl: string | null = null;
+  newAvatarFile: File | null = null;
 
   constructor(
     private authService: AuthService,
+    private projectService: ProjectService,
     private router: Router
   ) {}
 
@@ -34,6 +38,11 @@ export class ProfileComponent implements OnInit {
       next: (response) => {
         this.user = response.data || response;
         this.loading = false;
+
+        // Charger l'avatar si présent
+        if (this.user.avatar) {
+          this.loadAvatar(this.user.avatar);
+        }
       },
       error: (err) => {
         console.error('Erreur lors du chargement du profil :', err);
@@ -46,41 +55,80 @@ export class ProfileComponent implements OnInit {
     });
   }
 
+  loadAvatar(fileId: string): void {
+    this.projectService.getCoverImage(fileId).subscribe({
+      next: (res: any) => {
+        const fileData = res.data;
+        this.avatarUrl = `http://localhost:8055/assets/${fileData.id}`;
+      },
+      error: (err) => {
+        console.error('Erreur chargement avatar:', err);
+        this.avatarUrl = null;
+      }
+    });
+  }
+
+  onAvatarSelected(event: any): void {
+    if (event.target.files && event.target.files.length > 0) {
+      this.newAvatarFile = event.target.files[0];
+    }
+  }
+
   toggleEdit(): void {
     this.editing = !this.editing;
     this.successMessage = null;
+    this.error = null;
   }
 
-saveProfile(): void {
-  const token = localStorage.getItem('token');
-  if (!token) return;
+  async saveProfile(): Promise<void> {
+    const token = localStorage.getItem('token');
+    if (!token) return;
 
-  // 👇 On ne garde que les champs supportés par /users/me
-  const updatedData = {
-    first_name: this.user.first_name,
-    last_name: this.user.last_name,
-    email: this.user.email,
-    location: this.user.location,
-    title: this.user.title,
-    description: this.user.description
-  };
+    let avatarId = this.user.avatar;
 
-  this.loading = true;
-  this.authService.updateMe(updatedData, token).subscribe({
-    next: (response) => {
-      this.user = response.data || response;
-      this.loading = false;
-      this.editing = false;
-      this.successMessage = 'Profil mis à jour avec succès ✅';
-    },
-    error: (err) => {
-      console.error('Erreur de mise à jour du profil :', err.error);
-      this.error = err.error?.errors?.[0]?.message || 'Impossible de mettre à jour le profil.';
-      this.loading = false;
-    },
-  });
-}
+    // Upload avatar si nouveau fichier
+    if (this.newAvatarFile) {
+      try {
+        const uploadRes: any = await this.projectService.uploadFile(this.newAvatarFile, token).toPromise();
+        avatarId = uploadRes.data.id;
+      } catch (err) {
+        console.error('Erreur upload avatar:', err);
+        this.error = 'Erreur lors de l\'upload de l\'avatar';
+        return;
+      }
+    }
 
+    const updatedData = {
+      first_name: this.user.first_name,
+      last_name: this.user.last_name,
+      email: this.user.email,
+      location: this.user.location,
+      title: this.user.title,
+      description: this.user.description,
+      avatar: avatarId
+    };
+
+    this.loading = true;
+    this.authService.updateMe(updatedData, token).subscribe({
+      next: (response) => {
+        this.user = response.data || response;
+        this.loading = false;
+        this.editing = false;
+        this.newAvatarFile = null;
+        this.successMessage = 'Profil mis à jour avec succès ✅';
+
+        // Recharger l'avatar si mis à jour
+        if (avatarId) {
+          this.loadAvatar(avatarId);
+        }
+      },
+      error: (err) => {
+        console.error('Erreur de mise à jour du profil :', err.error);
+        this.error = err.error?.errors?.[0]?.message || 'Impossible de mettre à jour le profil.';
+        this.loading = false;
+      },
+    });
+  }
 
   logout(): void {
     localStorage.removeItem('token');
