@@ -96,5 +96,9 @@ getTags() {
   return this.api.getTags();
 }
 
+getTagsByIds(ids: string[]) {
+  return this.api.getTagsByIds(ids);
+}
+
 
 }

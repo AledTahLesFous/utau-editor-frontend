@@ -37,6 +37,9 @@ export class ProjectViewComponent implements OnInit {
   zoomFactor = 5;
   projectId = '';
 
+  // TAGS
+  tags: any[] = [];
+
   // AUDIO
   phonemeBuffers: { [name: string]: AudioBuffer } = {};
   notePlayers: { name: string, startTime: number, pitch: number, velocity: number }[] = [];
@@ -56,63 +59,71 @@ export class ProjectViewComponent implements OnInit {
   ngOnInit() {
     const projectName = this.route.snapshot.paramMap.get('name');
     this.isLoggedIn = !!localStorage.getItem('token');
+    const token = localStorage.getItem('token');
     if (!projectName) return;
 
-    this.http
-      .get(`http://127.0.0.1:8055/items/projects?filter[title][_eq]=${projectName}`)
-      .subscribe({
-        next: (res: any) => {
-          if (res.data && res.data.length > 0) {
-            const project = res.data[0];
-            this.projectId = project.id;
-            this.title = project.title;
-            this.description = project.description;
-            this.tempo = project.tempo;
-            this.key_signature = project.key_signature;
-            this.loadNotes(this.projectId);
+    this.projectService.getProjectByTitle(projectName, token || '').subscribe({
+      next: (res: any) => {
+        console.log('Projet reçu:', res);
+        if (res.data && res.data.length > 0) {
+          const project = res.data[0];
+          console.log('Tags du projet:', project.tags);
+          this.projectId = project.id;
+          this.title = project.title;
+          this.description = project.description;
+          this.tempo = project.tempo;
+          this.key_signature = project.key_signature;
+          
+          // Les tags sont maintenant directement inclus avec toutes leurs données
+          if (project.tags && project.tags.length > 0) {
+            console.log('Tags reçus avec données complètes:', project.tags);
+            // Extraire les objets tags_id
+            this.tags = project.tags.map((tag: any) => tag.tags_id);
+            console.log('Tags transformés:', this.tags);
+          }
+          
+          this.loadNotes(this.projectId);
 
-            if (project.cover_image) {
+          if (project.cover_image) {
             this.loadCoverImage(project.cover_image);
           }
 
-            // Charger likes si utilisateur connecté
-            if (this.isLoggedIn) {
-              const userId = localStorage.getItem('userId');
-              if (userId) {
-                this.loadUserLike(userId);
-              } else {
-                this.loadLikesCount();
-              }
+          // Charger likes si utilisateur connecté
+          if (this.isLoggedIn) {
+            const userId = localStorage.getItem('userId');
+            if (userId) {
+              this.loadUserLike(userId);
+            } else {
+              this.loadLikesCount();
             }
-          } else {
-            this.message = 'Projet introuvable';
           }
-        },
-        error: (err) => {
-          console.error(err);
-          this.message = 'Erreur lors de la récupération du projet';
+        } else {
+          this.message = 'Projet introuvable';
         }
-      });
+      },
+      error: (err) => {
+        console.error(err);
+        this.message = 'Erreur lors de la récupération du projet';
+      }
+    });
   }
 
   loadNotes(projectId: string) {
-    this.http.get(`http://127.0.0.1:8055/items/notes?filter[project_id][_eq]=${projectId}`)
-      .subscribe({
-        next: (res: any) => {
-          this.notes = res.data || [];
-          if (!this.notes.length) return;
+    this.projectService.getNotesByProject(projectId).subscribe({
+      next: (res: any) => {
+        this.notes = res.data || [];
+        if (!this.notes.length) return;
 
-          const phonemeIds = Array.from(new Set(this.notes.map(n => n.phoneme_id)));
-          this.http.get(`http://127.0.0.1:8055/items/phonemes?filter[id][_in]=${phonemeIds.join(',')}`)
-            .subscribe((phonemesRes: any) => {
-              const phonemes = phonemesRes.data || [];
-              this.notes.forEach(note => {
-                note.phoneme = phonemes.find((p: any) => p.id === note.phoneme_id);
-              });
-            });
-        },
-        error: (err) => console.error('Erreur récupération notes:', err)
-      });
+        const phonemeIds = Array.from(new Set(this.notes.map(n => n.phoneme_id)));
+        this.projectService.getPhonemesByIds(phonemeIds).subscribe((phonemesRes: any) => {
+          const phonemes = phonemesRes.data || [];
+          this.notes.forEach(note => {
+            note.phoneme = phonemes.find((p: any) => p.id === note.phoneme_id);
+          });
+        });
+      },
+      error: (err) => console.error('Erreur récupération notes:', err)
+    });
   }
 
   getNoteLeft(startTime: number) { return startTime / this.zoomFactor; }
@@ -126,7 +137,7 @@ async initializeAudio() {
 
   const phonemeNames = Array.from(new Set(this.notes.map(n => n.phoneme?.name).filter(Boolean)));
   for (const name of phonemeNames) {
-    const url = `http://127.0.0.1:8055/download-voicebank/${this.notes[0].voicebank_id}/sample-romaji/${name}`;
+    const url = `http://localhost:8055/download-voicebank/${this.notes[0].voicebank_id}/sample-romaji/${name}`;
     const res = await fetch(url);
     const arrayBuffer = await res.arrayBuffer();
     this.phonemeBuffers[name] = await Tone.context.decodeAudioData(arrayBuffer);
@@ -142,13 +153,10 @@ async initializeAudio() {
 }
 
 loadCoverImage(fileId: string) {
-
-
   this.projectService.getCoverImage(fileId).subscribe({
     next: (res: any) => {
       const fileData = res.data;
-
-      this.coverImageUrl = `http://127.0.0.1:8055/assets/${fileData.id}`;
+      this.coverImageUrl = `http://localhost:8055/assets/${fileData.id}`;
     },
     error: (err) => {
       console.error('Erreur chargement cover_image:', err);

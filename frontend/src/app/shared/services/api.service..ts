@@ -8,7 +8,7 @@
   })
   export class Api {
 
-    private baseUrl = 'http://127.0.0.1:8055';
+    private baseUrl = 'http://localhost:8055';
 
     constructor(private http: HttpClient) {}
 
@@ -105,7 +105,7 @@
   // ---------------- Project par nom ----------------
 
   getProjectByTitle(title: string, token: string): Observable<any> {
-    return this.http.get(`${this.baseUrl}/items/projects?filter[title][_eq]=${title}`, {
+    return this.http.get(`${this.baseUrl}/items/projects?filter[title][_eq]=${title}&fields=*,tags.tags_id.*`, {
       headers: { Authorization: `Bearer ${token}` }
     });
   }
@@ -171,6 +171,11 @@ uploadFile(file: File, token: string) {
 // ---------------- Tags ----------------
 getTags(): Observable<any> {
   return this.http.get(`${this.baseUrl}/items/tags`);
+}
+
+getTagsByIds(ids: string[]): Observable<any> {
+  const idFilter = ids.join(',');
+  return this.http.get(`${this.baseUrl}/items/tags?filter[id][_in]=${idFilter}`);
 }
 
 

@@ -27,7 +27,7 @@ export class ProjectEditComponent implements OnInit {
 
   // TAGS
   tagsOptions: any[] = [];
-  selectedTags: number[] = [];
+  selectedTags: any[] = [];
 
   moveMode = false;
   addMode = true;
@@ -81,7 +81,9 @@ export class ProjectEditComponent implements OnInit {
 
     // Charger la liste des tags
     this.projectService.getTags().subscribe({
-      next: (res: any) => this.tagsOptions = res.data || []
+      next: (res: any) => {
+        this.tagsOptions = res.data || [];
+      }
     });
 
     this.projectService.getProjectByTitle(projectName, token).subscribe({
@@ -103,7 +105,11 @@ export class ProjectEditComponent implements OnInit {
         this.status = project.status || 'draft';
 
         // Charger les TAGS du projet
-        this.selectedTags = project.tags ? project.tags.map((t: any) => t.id) : [];
+        if (project.tags && Array.isArray(project.tags)) {
+          this.selectedTags = project.tags.map((t: any) => typeof t === 'object' ? t.id : t);
+        } else {
+          this.selectedTags = [];
+        }
 
         // COVER
         if (project.cover_image) {
@@ -130,14 +136,13 @@ export class ProjectEditComponent implements OnInit {
   // --------------------------------------
   // TAGS
   // --------------------------------------
-  getTagName(id: number) {
+  getTagName(id: any) {
     const tag = this.tagsOptions.find(t => t.id === id);
     return tag ? tag.name : '';
   }
 
-  onTagsChange(event: any) {
-    const selectedOptions = Array.from(event.target.selectedOptions);
-    this.selectedTags = selectedOptions.map((opt: any) => Number(opt.value));
+  removeTag(tagId: any) {
+    this.selectedTags = this.selectedTags.filter(t => t !== tagId);
   }
 
   // --------------------------------------
@@ -285,7 +290,7 @@ export class ProjectEditComponent implements OnInit {
       duration: this.durationEdit,
       status: this.status,
       cover_image: coverId,
-      tags: this.selectedTags   // <-- IMPORTANT
+      tags: this.selectedTags.map(tagId => ({ tags_id: tagId }))
     };
 
     this.projectService.updateProjectById(this.projectId, data, token).subscribe({

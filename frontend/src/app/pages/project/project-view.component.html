@@ -20,6 +20,14 @@
       <p class="mb-2 text-gray-900 dark:text-white"><strong>Description:</strong> {{ description || '—' }}</p>
       <p class="mb-2 text-gray-900 dark:text-white"><strong>Tempo:</strong> {{ tempo || 120 }}</p>
       <p class="mb-4 text-gray-900 dark:text-white"><strong>Key signature:</strong> {{ key_signature || '—' }}</p>
+      
+      <!-- Tags -->
+      <div class="flex flex-wrap gap-2 mt-2">
+        <span *ngFor="let tag of tags" class="px-3 py-1 bg-emerald-400 text-white text-xs rounded-full font-semibold">
+          {{ tag.name }}
+        </span>
+        <span *ngIf="tags.length === 0" class="text-gray-500 text-xs italic">Aucun tag</span>
+      </div>
     </div>
 
     <button (click)="back()"
