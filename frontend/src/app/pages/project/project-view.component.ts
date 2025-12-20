@@ -84,13 +84,13 @@ export class ProjectViewComponent implements OnInit {
             this.loadCoverImage(project.cover_image);
           }
 
+              this.loadLikesCount();
+
           // Charger likes si utilisateur connecté
           if (this.isLoggedIn) {
             const userId = localStorage.getItem('userId');
             if (userId) {
               this.loadUserLike(userId);
-            } else {
-              this.loadLikesCount();
             }
           }
         } else {
