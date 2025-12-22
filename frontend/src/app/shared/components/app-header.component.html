@@ -59,8 +59,11 @@
     </button>
   </div>
 
-  <!-- Login/Profile -->
-  <div>
+  <!-- Login/Profile + Notifications -->
+  <div class="flex items-center gap-3">
+    <!-- Notifications Panel -->
+    <app-notifications-panel *ngIf="isLoggedIn"></app-notifications-panel>
+
     <button
       *ngIf="!isLoggedIn"
       (click)="goToLogin()"

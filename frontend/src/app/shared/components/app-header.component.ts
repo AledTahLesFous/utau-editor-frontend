@@ -3,11 +3,12 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MeiliSearchService } from '../../shared/services/meili-search.service';
+import { NotificationsPanelComponent } from './notifications-panel.component';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, NotificationsPanelComponent],
   templateUrl: './app-header.component.html',
 })
 export class AppHeaderComponent {

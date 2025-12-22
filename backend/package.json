@@ -12,7 +12,9 @@
   "dependencies": {
     "adm-zip": "^0.5.16",
     "directus": "^11.12.0",
+    "express": "^4.18.2",
     "node-fetch": "^2.7.0",
+    "socket.io": "^4.5.4",
     "sqlite3": "^5.1.7"
   }
 }

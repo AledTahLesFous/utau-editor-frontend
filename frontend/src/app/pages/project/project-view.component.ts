@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AppHeaderComponent } from '../../shared/components/app-header.component';
 import { ProjectService } from '../../shared/services/project.service';
+import { NotificationService } from '../../shared/services/notification.service';
 
 import * as Tone from 'tone';
 
@@ -47,13 +48,14 @@ export class ProjectViewComponent implements OnInit {
   // ---------------- Likes ----------------
   likesCount = 0;
   userLikeId: string | null = null;
+  projectOwnerId: string | null = null;
 
   constructor(
     private route: ActivatedRoute,
     private http: HttpClient,
     private router: Router,
     private projectService: ProjectService,
-
+    private notificationService: NotificationService
   ) {}
 
   ngOnInit() {
@@ -67,6 +69,7 @@ export class ProjectViewComponent implements OnInit {
         if (res.data && res.data.length > 0) {
           const project = res.data[0];
           this.projectId = project.id;
+          this.projectOwnerId = project.user_created || project.user_id || null;
           this.title = project.title;
           this.description = project.description;
           this.tempo = project.tempo;
@@ -198,22 +201,53 @@ loadLikesCount() {
 toggleLike() {
   const token = localStorage.getItem('token');
   const userId = localStorage.getItem('userId');
+  const userName = localStorage.getItem('userName');
+  const userAvatar = localStorage.getItem('userAvatar');
+
   if (!token || !userId) return;
 
   if (this.userLikeId) {
+    // Unlike
     this.projectService.removeLike(this.userLikeId, token).subscribe({
-      next: () => { this.userLikeId = null; this.likesCount--; },
-      error: (err) => console.error('Erreur suppression like:', err)
+      next: () => {
+        this.userLikeId = null;
+        this.likesCount--;
+        console.log('✅ Unlike successful');
+      },
+      error: (err) => console.error('❌ Erreur suppression like:', err)
     });
   } else {
+    // Like
     this.projectService.addLike(this.projectId, userId, token).subscribe({
       next: (res: any) => {
         this.userLikeId = res.data.id;
         this.likesCount++;
+        
+        // 🔔 Envoyer la notification WebSocket au propriétaire du projet
+        const projectOwnerId = this.getProjectOwnerId();
+        if (projectOwnerId && projectOwnerId !== userId) {
+          this.notificationService.sendLike(
+            projectOwnerId,
+            this.projectId,
+            'project',
+            userName || 'Utilisateur',
+            userAvatar || undefined
+          );
+          console.log('✅ Like & Notification sent');
+        } else {
+          console.log('✅ Like successful (but no notification - same user)');
+        }
       },
-      error: (err) => console.error('Erreur ajout like:', err)
+      error: (err) => console.error('❌ Erreur ajout like:', err)
     });
   }
+}
+
+/**
+ * Récupérer l'ID du propriétaire du projet
+ */
+private getProjectOwnerId(): string | null {
+  return this.projectOwnerId;
 }
 
 }

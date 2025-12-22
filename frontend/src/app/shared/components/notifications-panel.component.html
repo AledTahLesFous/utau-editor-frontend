@@ -1,0 +1,84 @@
+<div 
+  class="notifications-panel-container"
+  appClickOutside
+  (clickOutside)="closePanel()"
+>
+  <!-- Bouton de notifications avec badge -->
+  <div class="notification-button">
+    <button 
+      (click)="togglePanel()"
+      class="notification-btn"
+      [class.has-unread]="unreadCount > 0"
+    >
+      <svg class="notification-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31M5 19.5a3 3 0 106 0m6 0a3 3 0 106 0" />
+      </svg>
+      <span *ngIf="unreadCount > 0" class="notification-badge">{{ unreadCount }}</span>
+    </button>
+  </div>
+
+  <!-- Panneau de notifications -->
+  <div 
+    *ngIf="isOpen"
+    class="notification-panel"
+  >
+    <div class="notification-header">
+      <h3>Notifications</h3>
+      <div class="notification-actions">
+        <button 
+          *ngIf="notifications.length > 0"
+          (click)="clearNotifications()"
+          class="clear-btn"
+          title="Effacer toutes les notifications"
+        >
+          Effacer
+        </button>
+        <button 
+          (click)="closePanel()"
+          class="close-btn"
+        >
+          ✕
+        </button>
+      </div>
+    </div>
+
+    <!-- Liste des notifications -->
+    <div class="notification-list">
+      <div *ngIf="notifications.length === 0" class="empty-state">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31M5 19.5a3 3 0 106 0m6 0a3 3 0 106 0" />
+        </svg>
+        <p>Aucune notification</p>
+      </div>
+
+      <div 
+        *ngFor="let notification of notifications"
+        class="notification-item"
+        [class.unread]="!notification.read"
+        (click)="openNotificationDetails(notification)"
+      >
+        <div class="notification-avatar">
+          <img 
+            *ngIf="notification.fromUserAvatar"
+            [src]="notification.fromUserAvatar"
+            [alt]="notification.fromUserName"
+            class="avatar-image"
+          />
+          <div *ngIf="!notification.fromUserAvatar" class="avatar-placeholder">
+            {{ notification.fromUserName.charAt(0).toUpperCase() }}
+          </div>
+        </div>
+
+        <div class="notification-content">
+          <p class="notification-message">
+            <strong>{{ notification.fromUserName }}</strong>
+            <span class="highlight"> a aimé votre {{ notification.itemType }}</span>
+          </p>
+          <span class="notification-time">{{ getTimeAgo(notification.timestamp) }}</span>
+        </div>
+
+        <div *ngIf="!notification.read" class="unread-indicator"></div>
+      </div>
+    </div>
+  </div>
+</div>
