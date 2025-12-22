@@ -1,22 +1,15 @@
-# A faire
+# UTAU editor
 
-## API
-- Profile
-    - pfp
-- Project 
-    - published status
-    - all parameters
+## foncrionnalités : 
+- creation de compte via github
+- editeur utau like :
+    - tempo
+    - voicebanks
+    - status projet
+    - phonemes
+    - hauteurs/note MIDI
+    - tags  
+- notification wbesocket
+- Recherche de projet avec meilisearch
+- Upload de fichier pour photo de profil / photo illustration projet
 
-## Front end
-- CSS
-- View project ( others )
-- View projects ( self ) : by status and better css
-
-### Profile
-- pfp
-
-## Workflow
-- Tempo
-- Key signature
-- OAuth
-- Profile
