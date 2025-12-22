@@ -33,7 +33,7 @@ export default function registerEndpoint(router, { services }) {
       }
 
       // Télécharge le ZIP
-      const zipUrl = `http://127.0.0.1:8055/assets/${voicebank.sample_files}`;
+      const zipUrl = `http://localhost:8055/assets/${voicebank.sample_files}`;
       const response = await axios.get(zipUrl, { responseType: 'arraybuffer' });
       const zipBuffer = Buffer.from(response.data);
 

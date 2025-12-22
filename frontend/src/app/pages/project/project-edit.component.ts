@@ -419,7 +419,7 @@ export class ProjectEditComponent implements OnInit {
     const phonemeNames = [...new Set(this.notes.map(n => n.phoneme?.name).filter(Boolean))];
 
     for (const name of phonemeNames) {
-      const url = `http://127.0.0.1:8055/download-voicebank/${this.notes[0].voicebank_id}/sample-romaji/${name}`;
+      const url = `http://localhost:8055/download-voicebank/${this.notes[0].voicebank_id}/sample-romaji/${name}`;
       const res = await fetch(url);
       const arrayBuffer = await res.arrayBuffer();
       this.phonemeBuffers[name] = await Tone.context.decodeAudioData(arrayBuffer);
