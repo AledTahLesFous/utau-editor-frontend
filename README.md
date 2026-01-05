@@ -1,6 +1,6 @@
 # UTAU editor
 
-## foncrionnalités : 
+## fonctionnalités : 
 - creation de compte via github
 - editeur utau like :
     - tempo
@@ -12,4 +12,24 @@
 - notification wbesocket
 - Recherche de projet avec meilisearch
 - Upload de fichier pour photo de profil / photo illustration projet
+
+## Build & Run
+
+Run backend (apres avoir build les extensions) :
+```
+cd backend
+npm install
+npx directus start
+```
+Run frontend :
+```
+cd frontend
+npm install
+npm run start
+```
+Build les extensions (a faire 3 fois) :
+```
+cd backend/extensions/<extension>
+npm run build
+```
 
