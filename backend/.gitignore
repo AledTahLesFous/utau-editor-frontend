@@ -1,8 +1,0 @@
-# Node modules
-node_modules/
-
-# Meilisearch executable
-meilisearch.exe
-
-# Tous les fichiers .exe
-*.exe
